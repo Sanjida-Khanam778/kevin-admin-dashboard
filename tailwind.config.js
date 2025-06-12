@@ -8,11 +8,13 @@ export default {
         outfit: ["Outfit", "serif"],
       },
       colors: {
-        primary: "#007A8C",
+        primary: "#3A4646",
         secondary: "#B0D6DB",
-        accent: "#ECECEC",
-        neutral: "#3E3E3E",
+        sidebar: "#F0F0F0",
+        neutral: "#263133",
         footer: "#002B31",
+        outline: "#2D393A",
+        dark: "#222A2C"
       },
     },
   },
