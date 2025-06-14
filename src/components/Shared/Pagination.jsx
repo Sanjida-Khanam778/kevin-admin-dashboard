@@ -1,6 +1,17 @@
-import React from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
-export default function Pagination() {
+export default function Pagination({ setCurrentPage , currentPage}) {
+  const totalPages = Math.ceil(15 / 9);
+
+  const goToPage = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+  const goToPrevPage = () => {
+    setCurrentPage((prev) => Math.max(prev - 1, 1));
+  };
+  const goToNextPage = () => {
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  };
   return (
     <div className="px-6 py-4 border-t border-borderGray flex items-center justify-between bottom-0">
       <div>

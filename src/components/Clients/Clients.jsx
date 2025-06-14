@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { LuEye } from "react-icons/lu";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import avatar from "../../assets/images/Avatar.png";
 import toast from "react-hot-toast";
 import Modal from "../Shared/Modal";
+import Pagination from "../Shared/Pagination";
 
 const users = [
   {
@@ -122,48 +122,15 @@ export default function UserDataTable() {
     }
     setOpenDltModal(false); // close modal
   };
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (!openDropdownId) return;
 
-      const dropdownElement = dropdownRef.current[openDropdownId];
-      const buttonElement = dropdownButtonRef.current[openDropdownId];
-
-      if (
-        dropdownElement &&
-        !dropdownElement.contains(event.target) &&
-        buttonElement &&
-        !buttonElement.contains(event.target)
-      ) {
-        setOpenDropdownId(null);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [openDropdownId]);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9;
-  const totalPages = Math.ceil(users?.length / itemsPerPage);
   // Calculate current page data
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentUsers = users?.slice(indexOfFirstItem, indexOfLastItem);
-  // Pagination handlers
-  const goToPage = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
-  const goToPrevPage = () => {
-    setCurrentPage((prev) => Math.max(prev - 1, 1));
-  };
-  const goToNextPage = () => {
-    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-  };
 
   // Get type color
   const getTypeColor = (type) => {
@@ -174,8 +141,6 @@ export default function UserDataTable() {
         return "text-yellow-500";
       case "Free":
         return "text-neutral/80";
-      default:
-        return "text-gray-700";
     }
   };
 
@@ -251,8 +216,8 @@ export default function UserDataTable() {
                 </tr>
               ) : (
                 currentUsers &&
-                currentUsers?.map((user) => (
-                  <tr key={user?.user_id} className="hover:bg-gray-50">
+                currentUsers?.map((user, idx) => (
+                  <tr key={idx} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <img
@@ -276,50 +241,22 @@ export default function UserDataTable() {
                       </div>
                     </td>
 
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                    <td className="px-6 py-4 whitespace-nowrap space-x-5 text-right">
                       <button
-                        ref={(el) =>
-                          (dropdownButtonRef.current[user?.user_id] = el)
-                        }
-                        data-dropdown-id={user?.user_id}
-                        onClick={() => toggleDropdown(user?.user_id)}
-                        className="text-neutral"
+                        onClick={(e) => {
+                          setSelectedUserId(user?.user_id);
+                        }}
                       >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-5 w-5"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-                        </svg>
+                        <LuEye className="text-2xl cursor-pointer" />
                       </button>
-                      {/* Dropdown */}
-                      {openDropdownId === user?.user_id && (
-                        <div
-                          ref={(el) =>
-                            (dropdownRef.current[user?.user_id] = el)
-                          }
-                          data-dropdown-id={user?.user_id}
-                          className="absolute flex flex-col items-center justify-center gap-2 right-8 mt-2 w-16 p-4 bg-white border border-borderGray rounded-md shadow-lg z-20"
-                        >
-                          <button
-                            onClick={(e) => {
-                              setSelectedUserId(user?.user_id);
-                            }}
-                          >
-                            <LuEye className="text-2xl cursor-pointer" />
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              handleButtonClick(e, setOpenDltModal);
-                              setSelectedUserId(user?.user_id);
-                            }}
-                          >
-                            <RiDeleteBin6Line className="text-2xl text-red-500 cursor-pointer" />
-                          </button>
-                        </div>
-                      )}
+                      <button
+                        onClick={(e) => {
+                          handleButtonClick(e, setOpenDltModal);
+                          setSelectedUserId(user?.user_id);
+                        }}
+                      >
+                        <RiDeleteBin6Line className="text-2xl text-red-500 cursor-pointer" />
+                      </button>
                     </td>
                   </tr>
                 ))
@@ -334,7 +271,7 @@ export default function UserDataTable() {
                     onClick={() => setOpenDltModal(false)}
                   >
                     <svg
-                      className="w-6 h-6 text-white bg-subgray/50 rounded-full p-1"
+                      className="w-6 h-6 text-black bg-subgray/50 rounded-full p-1"
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
@@ -368,7 +305,7 @@ export default function UserDataTable() {
           </table>
         </div>
 
-   
+        <Pagination currentPage={currentPage} setCurrentPage={setCurrentPage} />
       </div>
     </div>
   );
