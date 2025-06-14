@@ -12,7 +12,7 @@ export default {
         secondary: "#B0D6DB",
         sidebar: "#F0F0F0",
         neutral: "#263133",
-        footer: "#002B31",
+        background: "#F9F9FA",
         outline: "#2D393A",
         dark: "#222A2C"
       },

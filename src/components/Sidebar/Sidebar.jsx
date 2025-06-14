@@ -9,7 +9,7 @@ import { HiOutlineUserGroup } from "react-icons/hi";
 import { LuDumbbell, LuSettings } from "react-icons/lu";
 export default function Sidebar() {
   return (
-    <div className=" bg-sidebar h-screen ">
+    <div className=" bg-sidebar h-screen sticky left-0 z-20">
       <h1 className="uppercase p-8 text-xl font-bold font-inter leading-loose tracking-[0.3em] text-primary mb-6">
         <span className="text-3xl">K</span>
         <span className="">evin </span>
