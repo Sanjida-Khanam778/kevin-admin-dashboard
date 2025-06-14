@@ -1,6 +1,6 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-export default function Pagination({ setCurrentPage , currentPage}) {
+export default function Pagination({ setCurrentPage, currentPage }) {
   const totalPages = Math.ceil(15 / 9);
 
   const goToPage = (pageNumber) => {
@@ -19,7 +19,7 @@ export default function Pagination({ setCurrentPage , currentPage}) {
           Showing data 1 to 10 of 256K entries
         </p>
       </div>
-      <div className="flex space-x-1">
+      <div className="flex space-x-2">
         <button
           onClick={goToPrevPage}
           disabled={currentPage === 1}
@@ -57,10 +57,10 @@ export default function Pagination({ setCurrentPage , currentPage}) {
             <button
               key={`page-${pageNum}`}
               onClick={() => goToPage(pageNum)}
-              className={`px-3 py-1 rounded-full ${
+              className={`px-3 py-1 rounded-lg mr-2 ${
                 currentPage === pageNum
                   ? "bg-primary text-white"
-                  : "text-gray-600 hover:bg-border border-borderGray"
+                  : "text-gray-600 bg-neutral/10"
               }`}
             >
               {pageNum}
@@ -70,10 +70,10 @@ export default function Pagination({ setCurrentPage , currentPage}) {
         <button
           onClick={goToNextPage}
           disabled={currentPage === totalPages}
-          className={`px-3 py-1 rounded ${
+          className={`px-3 py-1 rounded-lg ${
             currentPage === totalPages
               ? "text-gray-300 cursor-not-allowed"
-              : "text-gray-600 hover:bg-border border-borderGray"
+              : "text-gray-600"
           }`}
         >
           <ChevronRight size={18} />

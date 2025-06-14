@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { LuEye } from "react-icons/lu";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import avatar from "../../assets/images/Avatar.png";
@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import Modal from "../Shared/Modal";
 import Pagination from "../Shared/Pagination";
 import Button from "../Shared/Button";
+import { RxCross2 } from "react-icons/rx";
 
 const users = [
   {
@@ -101,17 +102,12 @@ const users = [
 ];
 
 export default function UserDataTable() {
-  const dropdownRef = useRef({});
-  const dropdownButtonRef = useRef({});
+  const [query, setQuery] = useState("");
   const [sortBy, setSortBy] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [openDltModal, setOpenDltModal] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState(null);
-  const [openDropdownId, setOpenDropdownId] = useState(null);
 
-  const toggleDropdown = (id) => {
-    setOpenDropdownId(openDropdownId === id ? null : id);
-  };
   const handleDeleteUser = async () => {
     try {
       const res = await deleteUser(selectedUserId).unwrap();
@@ -123,7 +119,6 @@ export default function UserDataTable() {
     }
     setOpenDltModal(false); // close modal
   };
-
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -149,22 +144,28 @@ export default function UserDataTable() {
   const handleButtonClick = (event, modalSetter) => {
     event.stopPropagation();
     modalSetter(true);
-    setOpenDropdownId(null); // Close dropdown after opening modal
   };
 
   return (
     <div className="bg-accent font-lora h-[90vh]">
-      <h1>User Management</h1>
       <div className="px-8 rounded-lg">
         {/* Search and filter bar */}
         <div className="p-4 flex justify-between items-center">
-          <div className="relative w-1/2"></div>
-          <div className="flex items-center">
-            <div className="relative ">
+          <h1 className="text-3xl font-semibold">Client Management</h1>
+
+          <div className="flex items-center gap-4">
+            <input
+              type="text"
+              placeholder="Search by name..."
+              className="p-2 border rounded-md bg-white"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+            <div className="relative">
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="appearance-none bg-white border border-borderGray rounded-full pl-6 pr-6 py-1 focus:outline-none focus:ring-1"
+                className="appearance-none bg-white border border-borderGray rounded-md pl-6 pr-6 py-2 focus:outline-none focus:ring-1"
               >
                 <option value={""}>All</option>
                 <option value={"Yearly"}>Sort by: Yearly</option>
@@ -267,24 +268,8 @@ export default function UserDataTable() {
               <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
                 <div className="bg-white rounded-lg p-8 max-w-sm w-full flex flex-col items-center text-center relative">
                   {/* Close icon */}
-                  <div
-                    className="absolute top-3 right-3 cursor-pointer"
-                    onClick={() => setOpenDltModal(false)}
-                  >
-                    <svg
-                      className="w-6 h-6 text-black bg-subgray/50 rounded-full p-1"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
+                  <div onClick={() => setOpenDltModal(false)}>
+                    <RxCross2 className="absolute top-4 right-4 cursor-pointer text-xl" />
                   </div>
 
                   {/* Warning message */}
