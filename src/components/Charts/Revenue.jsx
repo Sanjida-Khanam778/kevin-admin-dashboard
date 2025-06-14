@@ -1,7 +1,7 @@
 import {
   Area,
   AreaChart,
-  Dot,
+  CartesianGrid,
   Line,
   ResponsiveContainer,
   Tooltip,
@@ -11,26 +11,26 @@ import {
 
 export default function Revenue() {
   const revenueData = [
-    { value: 5, revenue: 20, highlighted: false },
-    { value: 10, revenue: 50, highlighted: true },
-    { value: 12, revenue: 30, highlighted: false },
-    { value: 15, revenue: 50, highlighted: true },
-    { value: 18, revenue: 30, highlighted: false },
-    { value: 20, revenue: 50, highlighted: true },
-    { value: 21, revenue: 90, highlighted: true, tooltip: "64,364.77" },
-    { value: 25, revenue: 50, highlighted: true },
-    { value: 30, revenue: 50, highlighted: true },
-    { value: 35, revenue: 60, highlighted: true },
-    { value: 37, revenue: 25, highlighted: false },
-    { value: 40, revenue: 25, highlighted: false },
-    { value: 42, revenue: 70, highlighted: true },
-    { value: 45, revenue: 60, highlighted: false },
-    { value: 47, revenue: 65, highlighted: true },
-    { value: 50, revenue: 60, highlighted: false },
-    { value: 52, revenue: 55, highlighted: true },
-    { value: 55, revenue: 40, highlighted: false },
-    { value: 57, revenue: 55, highlighted: true },
-    { value: 60, revenue: 55, highlighted: true },
+    { value: 5, revenue: 20 },
+    { value: 10, revenue: 50 },
+    { value: 12, revenue: 30 },
+    { value: 15, revenue: 50 },
+    { value: 18, revenue: 30 },
+    { value: 20, revenue: 50 },
+    { value: 21, revenue: 90, tooltip: "64,364.77" },
+    { value: 25, revenue: 50 },
+    { value: 30, revenue: 50 },
+    { value: 35, revenue: 60 },
+    { value: 37, revenue: 25 },
+    { value: 40, revenue: 25 },
+    { value: 42, revenue: 70 },
+    { value: 45, revenue: 60 },
+    { value: 47, revenue: 65 },
+    { value: 50, revenue: 60 },
+    { value: 52, revenue: 55 },
+    { value: 55, revenue: 40 },
+    { value: 57, revenue: 55 },
+    { value: 60, revenue: 55 },
   ];
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
@@ -47,8 +47,8 @@ export default function Revenue() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+    <div className="mx-auto">
+      <div className="bg-white rounded-xl p-6 ">
         {/* Chart Header */}
         <div className="flex justify-between items-start mb-8">
           <h2 className="text-lg font-semibold text-gray-900">Revenue</h2>
@@ -58,7 +58,6 @@ export default function Revenue() {
             <select className="text-sm border border-gray-200 rounded-md px-3 py-1 bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
               <option value="yearly">yearly</option>
               <option value="monthly">monthly</option>
-              <option value="weekly">weekly</option>
             </select>
           </div>
         </div>
@@ -70,9 +69,15 @@ export default function Revenue() {
               data={revenueData}
               margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
             >
+              <CartesianGrid
+                strokeDasharray="0"
+                stroke="#F3F4F6"
+                horizontal={true}
+                vertical={false}
+              />
               <XAxis
                 dataKey="value"
-                axisLine={false}
+                axisLine={{ stroke: "#E5E7EB", strokeWidth: 1 }}
                 tickLine={false}
                 tick={{ fontSize: 12, fill: "#9CA3AF" }}
                 tickFormatter={(value) => `${value}k`}
@@ -92,27 +97,18 @@ export default function Revenue() {
                 dataKey="revenue"
                 stroke="none"
                 fill="#E5E7EB"
-                fillOpacity={0.6}
+                fillOpacity={1}
               />
               <Line
                 type="monotone"
                 dataKey="revenue"
                 stroke="#6B7280"
                 strokeWidth={1}
-                dot={({ cx, cy, payload }) => {
-                  if (payload.highlighted) {
-                    return (
-                      <Dot
-                        cx={cx}
-                        cy={cy}
-                        r={3}
-                        fill="#374151"
-                        stroke="#374151"
-                        strokeWidth={1}
-                      />
-                    );
-                  }
-                  return null;
+                dot={{
+                  r: 3,
+                  fill: "#374151",
+                  stroke: "#374151",
+                  strokeWidth: 1,
                 }}
               />
             </AreaChart>

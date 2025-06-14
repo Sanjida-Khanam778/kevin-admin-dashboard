@@ -98,7 +98,7 @@ const Overview = () => {
         ))}
       </div>
       <div className="max-w-6xl mx-auto mt-10">
-        <div className="bg-background rounded-xl p-6">
+        <div className="bg-background rounded-xl p-6 mb-10">
           {/* Chart Header */}
           <div className="flex justify-between items-start mb-8">
             <div className="space-y-4">
@@ -177,9 +177,9 @@ const Overview = () => {
             </ResponsiveContainer>
           </div>
 
+        </div>
           {/* revenue */}
           <Revenue />
-        </div>
       </div>
     </div>
   );

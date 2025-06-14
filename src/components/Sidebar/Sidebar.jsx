@@ -7,6 +7,7 @@ import {
 } from "react-icons/pi";
 import { HiOutlineUserGroup } from "react-icons/hi";
 import { LuDumbbell, LuSettings } from "react-icons/lu";
+
 export default function Sidebar() {
   return (
     <div className=" bg-sidebar h-screen sticky left-0 z-20">
