@@ -1,6 +1,9 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function Pagination({ setCurrentPage, currentPage }) {
+  const indexOfLastItem = currentPage * 9;
+  const endItems = Math.min(currentPage * 9, 15);
+  const indexOfFirstItem = indexOfLastItem - 9;
   const totalPages = Math.ceil(15 / 9);
 
   const goToPage = (pageNumber) => {
@@ -16,7 +19,7 @@ export default function Pagination({ setCurrentPage, currentPage }) {
     <div className="px-6 py-4 border-t border-borderGray flex items-center justify-between bottom-0">
       <div>
         <p className="text-sm text-primary font-medium">
-          Showing data 1 to 10 of 256K entries
+          Showing data {indexOfFirstItem + 1} to {endItems} of {15} entries
         </p>
       </div>
       <div className="flex space-x-2">
