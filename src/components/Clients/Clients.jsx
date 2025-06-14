@@ -5,6 +5,7 @@ import avatar from "../../assets/images/Avatar.png";
 import toast from "react-hot-toast";
 import Modal from "../Shared/Modal";
 import Pagination from "../Shared/Pagination";
+import Button from "../Shared/Button";
 
 const users = [
   {
@@ -297,7 +298,7 @@ export default function UserDataTable() {
                   </p>
 
                   <div onClick={handleDeleteUser}>
-                    <button>Delete</button>
+                    <Button>Delete</Button>
                   </div>
                 </div>
               </div>
