@@ -161,7 +161,7 @@ export default function UserDataTable() {
     event.stopPropagation();
     modalSetter(true);
   };
-  const handleViewDetails = (id) => {};
+
 
   return (
     <div className="bg-accent font-lora h-[90vh]">

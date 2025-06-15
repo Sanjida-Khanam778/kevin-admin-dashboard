@@ -1,216 +1,266 @@
 import { useState } from "react";
-import { GoPencil } from "react-icons/go";
-const data = [
+import { LuEye } from "react-icons/lu";
+import { RiDeleteBin6Line } from "react-icons/ri";
+import avatar from "../../assets/images/Avatar.png";
+import toast from "react-hot-toast";
+import Modal from "../Shared/Modal";
+import Pagination from "../Shared/Pagination";
+import Button from "../Shared/Button";
+import { RxCross2 } from "react-icons/rx";
+import { Link } from "react-router-dom";
+import one from "../../assets/images/recipe/recipe1.webp";
+import two from "../../assets/images/recipe/recipe2.webp";
+import three from "../../assets/images/recipe/recipe3.jpeg";
+import four from "../../assets/images/recipe/recipe4.jpg";
+import five from "../../assets/images/recipe/recipe5.webp";
+const recipes = [
   {
-    id: "#BB32",
-    package_amount: 200,
-    package_type: "Yearly",
-    package_status: "Active",
+    id: "R001",
+    image: one,
+    name: "Chicken Salad",
+    type: "Cheat meal",
+    time: "Breakfast",
   },
   {
-    id: "#BD21",
-    package_amount: 20,
-    package_type: "Monthly",
-    package_status: "Postpone",
+    id: "R002",
+    image: two,
+    name: "Nut & veg salad",
+    type: "High protein",
+    time: "Snacks",
   },
   {
-    id: "#AB41",
-    package_amount: 0,
-    package_type: "Free",
-    package_status: "Active",
+    id: "R003",
+    image: three,
+    name: "Chicken Salad",
+    type: "Cheat meal",
+    time: "Breakfast",
+  },
+  {
+    id: "R004",
+    image: four,
+    name: "Nut & veg salad",
+    type: "High protein",
+    time: "Snacks",
+  },
+  {
+    id: "R005",
+    image: five,
+    name: "Chicken Salad",
+    type: "Cheat meal",
+    time: "Breakfast",
+  },
+  {
+    id: "R006",
+    image: one,
+    name: "Nut & veg salad",
+    type: "High protein",
+    time: "Snacks",
+  },
+  {
+    id: "R007",
+    image: two,
+    name: "Chicken Salad",
+    type: "Cheat meal",
+    time: "Breakfast",
+  },
+  {
+    id: "R008",
+    image: three,
+    name: "Nut & veg salad",
+    type: "High protein",
+    time: "Snacks",
   },
 ];
-export default function Recipe() {
+
+export default function Workout() {
+  const [query, setQuery] = useState("");
+  const [sortBy, setSortBy] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [editIndex, setEditIndex] = useState(null);
-  const [packages, setPackages] = useState(data);
+  const [openDltModal, setOpenDltModal] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState(null);
 
-  const handleEdit = (index) => {
-    setEditIndex(index);
+  const handleDeleteUser = async () => {
+    try {
+      const res = await deleteUser(selectedUserId).unwrap();
+      console.log(res);
+      toast.success(res?.message);
+    } catch (error) {
+      toast.error("Failed to delete user");
+      console.error("Delete error:", error);
+    }
+    setOpenDltModal(false); // close modal
   };
 
-  const handleAmountChange = (index, value, id) => {
-    const updatedPackages = packages.map((pkg, i) =>
-      i === index ? { ...pkg, package_amount: value } : pkg
-    );
-    setPackages(updatedPackages);
-    const newAmountData = {
-      id,
-      package_amount: { package_amount: value },
-    };
-    sendPackageAmount(newAmountData)
-      .unwrap()
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((error) => {
-        toast.error("Failed to update status");
-      });
-  };
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 9;
+  // Calculate current page data
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentUsers = recipes?.slice(indexOfFirstItem, indexOfLastItem);
 
-  const handleStatusChange = (index, newStatus, id) => {
-    const updatedPackages = packages.map((pkg, i) =>
-      i === index ? { ...pkg, package_status: newStatus } : pkg
-    );
-
-    setPackages(updatedPackages);
-    const newStatusData = {
-      id,
-      package_status: { package_status: newStatus },
-    };
-    sendPackageStatus(newStatusData)
-      .unwrap()
-      .then((res) => {
-        toast.success(res.message);
-      })
-      .catch((error) => {
-        toast.error("Failed to update status");
-      });
-  };
-
-  const getStatusColor = (package_status) => {
-    return package_status === "Active" ? " text-green-400" : "text-red-500";
-  };
-
+  // Get type color
   const getTypeColor = (type) => {
     switch (type) {
       case "Yearly":
-        return "text-[#A855F7]";
+        return "text-green-500";
       case "Monthly":
-        return "text-[#A855F7]";
+        return "text-yellow-500";
       case "Free":
-        return "text-neutral/40";
+        return "text-neutral/80";
     }
   };
+
+  // Handle button click with event propagation stop
+  const handleButtonClick = (event, modalSetter) => {
+    event.stopPropagation();
+    modalSetter(true);
+  };
+
   return (
-    <div className="p-4 px-8">
-      <h1 className="text-3xl font-semibold">Subscription Type</h1>
-      <div className="overflow-x-auto w-10/12 mx-auto mt-20">
-        <table className="w-full">
-          <thead>
-            <tr className="text-left text-subgray border-b border-borderGray">
-              <th className="pb-3 font-medium text-center">Package ID</th>
-              <th className="pb-3 font-medium text-center">Package Amount</th>
-              <th className="pb-3 font-medium text-center">Type</th>
-              <th className="pb-3 font-medium text-center">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading
-              ? "Loading"
-              : packages?.map((pkg, index) => (
-                  <tr key={index} className="">
-                    <td className="py-4 text-[#222222] font-semibold text-center">
-                      {pkg.id}
-                    </td>
+    <div className="bg-accent font-lora h-[90vh]">
+      <div className="px-8 rounded-lg">
+        {/* Search and filter bar */}
+        <div className="p-4 flex justify-between items-center">
+          <h1 className="text-3xl font-semibold">Recipe Management</h1>
 
-                    <td className="py-4 font-medium text-subgray text-center">
-                      {editIndex === index ? (
-                        <input
-                          className="w-24 px-4 py-1 border border-borderGray rounded focus:outline-none focus:ring-2 focus:ring-teal-500"
-                          type="number"
-                          value={pkg.package_amount}
-                          onChange={(e) =>
-                            handleAmountChange(index, e.target.value, pkg.id)
-                          }
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              e.preventDefault();
-                              setEditIndex(null); // exit edit mode on Enter
-                            }
-                          }}
-                          autoFocus
-                          onBlur={() => setEditIndex(null)}
+          <div className="flex items-center gap-4">
+            {/* search */}
+            <input
+              type="text"
+              placeholder="Search by name..."
+              className="p-2 border rounded-md bg-white"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+            {/* filter */}
+            <div className="relative">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="appearance-none bg-white border border-borderGray rounded-md pl-6 pr-6 py-2 focus:outline-none focus:ring-1"
+              >
+                <option value={""}>All</option>
+                <option value={"Yearly"}>Sort by: Yearly</option>
+                <option value={"Monthly"}>Sort by: Monthly</option>
+                <option value={"Free"}>Sort by: Free</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <svg
+                  className="h-4 w-4"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full mx-auto mt-10">
+            <thead className="">
+              <tr>
+                <th className="px-6 py-3 text-left text-sm font-medium text-neutral tracking-wider">
+                  Recipe Name
+                </th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-neutral tracking-wider">
+                  Recipe Type
+                </th>
+
+                <th className="px-6 py-3 text-left text-sm font-medium text-neutral tracking-wider">
+                  For Time
+                </th>
+                <th className="px-6 py-3 text-right text-sm font-medium text-neutral tracking-wider">
+                  Action
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-borderGray">
+              {isLoading ? (
+                <tr>
+                  <td>loading..</td>
+                </tr>
+              ) : (
+                currentUsers &&
+                currentUsers?.map((user, idx) => (
+                  <tr key={idx} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <img
+                          className="w-8 h-8 mr-4 rounded-full"
+                          src={user?.image || avatar}
+                          alt=""
                         />
-                      ) : (
-                        <div
-                          onClick={
-                            pkg.package_type !== "Free"
-                              ? () => handleEdit(index)
-                              : undefined
-                          }
-                          className={`flex justify-between w-48 mx-auto ${
-                            pkg.package_type !== "Free"
-                              ? " cursor-pointer gap-24 items-center "
-                              : "cursor-default justify-start"
-                          }`}
-                        >
-                          <span>{pkg.package_amount} $</span>
-                          <span>
-                            {pkg.package_type !== "Free" && <GoPencil />}
-                          </span>
+                        <div className="text-sm font-medium text-gray-900">
+                          {user?.name}
                         </div>
-                      )}
-                    </td>
-                    <td
-                      className={`py-4 font-medium text-center ${getTypeColor(
-                        pkg.package_type
-                      )}`}
-                    >
-                      {pkg.package_type}
-                    </td>
-                    <td className="py-4 text-center ">
-                      <div className="relative inline-block">
-                        {pkg.package_type !== "Free" ? (
-                          <select
-                            name="status"
-                            value={pkg.package_status}
-                            onChange={(e) => {
-                              handleStatusChange(index, e.target.value, pkg.id);
-                            }}
-                            className={`appearance-none pr-8 pl-5 py-2 rounded-full text-xs font-bold outline-none cursor-pointer shadow-lg ${getStatusColor(
-                              pkg.package_status
-                            )}`}
-                          >
-                            <option
-                              className="text-black bg-white"
-                              value="Active"
-                            >
-                              Active
-                            </option>
-                            <option
-                              className="text-black bg-white"
-                              value="Postpone"
-                            >
-                              Postpone
-                            </option>
-                          </select>
-                        ) : (
-                          <p
-                            className={`px-9 py-2 rounded-full text-xs font-bold outline-none text-green-400 shadow-lg cursor-not-allowed`}
-                          >
-                            Active
-                          </p>
-                        )}
-
-                        {/* Custom dropdown arrow */}
-                        {pkg.package_type !== "Free" && (
-                          <div
-                            className={`pointer-events-none absolute inset-y-2 right-2 flex items-center text-gray-700 ${getStatusColor(
-                              pkg.package_status
-                            )}`}
-                          >
-                            <svg
-                              className="w-4 h-4"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M19 9l-7 7-7-7"
-                              />
-                            </svg>
-                          </div>
-                        )}
                       </div>
                     </td>
+
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className={`text-sm ${getTypeColor(user?.type)}`}>
+                        {user?.type}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-subgray">{user?.time}</div>
+                    </td>
+
+                    <td className="px-6 py-4 whitespace-nowrap space-x-5 text-right">
+                      <Link to={`/clients/${user?.id}`}>
+                        <button>
+                          <LuEye className="text-2xl cursor-pointer" />
+                        </button>
+                      </Link>
+                      <button
+                        onClick={(e) => {
+                          handleButtonClick(e, setOpenDltModal);
+                          setSelectedUserId(user?.id);
+                        }}
+                      >
+                        <RiDeleteBin6Line className="text-2xl text-red-500 cursor-pointer" />
+                      </button>
+                    </td>
                   </tr>
-                ))}
-          </tbody>
-        </table>
+                ))
+              )}
+            </tbody>
+            <Modal isOpen={openDltModal} onClose={() => setOpenDltModal(false)}>
+              <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                <div className="bg-white rounded-lg p-8 max-w-sm w-full flex flex-col items-center text-center relative">
+                  {/* Close icon */}
+                  <div onClick={() => setOpenDltModal(false)}>
+                    <RxCross2 className="absolute top-4 right-4 cursor-pointer text-xl" />
+                  </div>
+
+                  {/* Warning message */}
+                  <h2 className="text-red-500 font-semibold text-xl mt-6 mb-8">
+                    Are you sure !!
+                  </h2>
+
+                  {/* Confirmation question */}
+                  <p className="text-primary text-lg mb-8">
+                    Do you want to delete this user ?
+                  </p>
+
+                  <div onClick={handleDeleteUser}>
+                    <Button>Delete</Button>
+                  </div>
+                </div>
+              </div>
+            </Modal>
+          </table>
+        </div>
+
+        <Pagination currentPage={currentPage} setCurrentPage={setCurrentPage} />
       </div>
     </div>
   );
