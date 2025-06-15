@@ -1,4 +1,3 @@
-
 export default function UserInfo() {
   return (
     <div>
@@ -12,40 +11,45 @@ export default function UserInfo() {
                 className="w-full h-full rounded-full object-cover"
               />
             </div>
-            <h1 className="text-xl font-bold text-gray-900 mb-1">
+            <h1 className="text-xl font-bold text-primary mb-1">
               Maria González
             </h1>
             <p className="text-gray-600 text-sm mb-4">Johndoe393@Gmail.Com</p>
           </div>
           <div className="flex-1 grid grid-cols-3 gap-8">
             <div>
-              <span className="text-sm font-medium text-gray-700">
+              <span className="text-lg text-primary font-semibold ">
                 Subscription PLAN:
               </span>
               <p className="text-gray-600 text-sm">Yearly plan</p>
             </div>
+
             <div>
-              <span className="text-sm font-medium text-gray-700">
+              <span className="text-lg text-primary font-semibold ">
+                Price:
+              </span>
+              <p className="text-gray-600 text-sm">$200.00/Monthly</p>
+            </div>
+            <div>
+              <span className="text-lg text-primary font-semibold ">
+                Status:
+              </span>
+              <p className="text-purple-600 text-sm font-medium">Active</p>
+            </div>
+            <div>
+              <span className="text-lg text-primary font-semibold ">
                 Billing Information:
               </span>
               <p className="text-gray-600 text-sm">Credit Card (****4242)</p>
             </div>
             <div>
-              <span className="text-sm font-medium text-gray-700">Price:</span>
-              <p className="text-gray-600 text-sm">$200.00/Monthly</p>
-            </div>
-            <div>
-              <span className="text-sm font-medium text-gray-700">Status:</span>
-              <p className="text-purple-600 text-sm font-medium">Active</p>
-            </div>
-            <div>
-              <span className="text-sm font-medium text-gray-700">
+              <span className="text-lg text-primary font-semibold ">
                 Start Date:
               </span>
               <p className="text-gray-600 text-sm">1/15/2023</p>
             </div>
             <div>
-              <span className="text-sm font-medium text-gray-700">
+              <span className="text-lg text-primary font-semibold ">
                 Next Billing Date:
               </span>
               <p className="text-gray-600 text-sm">5/15/2023</p>

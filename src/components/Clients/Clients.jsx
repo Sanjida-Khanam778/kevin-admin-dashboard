@@ -262,7 +262,7 @@ export default function UserDataTable() {
                     </td>
 
                     <td className="px-6 py-4 whitespace-nowrap space-x-5 text-right">
-                      <Link to={`/client/${user?.user_id}`}>
+                      <Link to={`/clients/${user?.user_id}`}>
                         <button>
                           <LuEye className="text-2xl cursor-pointer" />
                         </button>

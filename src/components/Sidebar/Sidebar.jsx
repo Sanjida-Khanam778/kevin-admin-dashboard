@@ -32,7 +32,11 @@ export default function Sidebar() {
           <li>
             <NavLink
               to={"/clients"}
-              className="flex items-center px-8 py-4 hover:bg-primary hover:text-white  "
+              className={({ isActive }) =>
+                isActive || location.pathname.startsWith("/clients")
+                  ? "flex items-center px-8 py-4 bg-primary text-white"
+                  : "flex items-center px-8 py-4 hover:bg-primary hover:text-white"
+              }
             >
               <HiOutlineUserGroup className="mr-3 text-xl" />
               Clients
@@ -44,7 +48,7 @@ export default function Sidebar() {
               className="flex items-center px-8 py-4 hover:bg-primary hover:text-white  "
             >
               <PiForkKnifeBold className="mr-3 text-xl" />
-              Recipe
+              Recipe Management
             </NavLink>
           </li>
           <li>
@@ -53,7 +57,7 @@ export default function Sidebar() {
               className="flex items-center px-8 py-4 hover:bg-primary hover:text-white  "
             >
               <LuDumbbell className="text-xl mr-3 -rotate-45" />
-              Workout
+              Workout Management
             </NavLink>
           </li>
           <li>
