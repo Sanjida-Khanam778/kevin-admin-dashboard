@@ -6,6 +6,7 @@ import Settings from "../components/Settings/Settings";
 import Subscription from "../components/Subscription/Subscription";
 import Clients from "../components/Clients/Clients";
 import Workout from "../components/Workout/Workout";
+import UserProfileDashboard from "../components/UserProfileDashboard UserProfileDashboard/UserProfileDashboard";
 
 export const router = createBrowserRouter([
   {
@@ -21,12 +22,15 @@ export const router = createBrowserRouter([
         path: "/clients",
         element: <Clients />,
       },
-    
+      {
+        path: "/client/:id",
+        element: <UserProfileDashboard />,
+      },
       {
         path: "/recipe",
         element: <Recipe />,
       },
-        {
+      {
         path: "/workout",
         element: <Workout />,
       },
@@ -44,5 +48,4 @@ export const router = createBrowserRouter([
     path: "/login",
     element: <h1>Login</h1>,
   },
- 
 ]);

@@ -7,93 +7,109 @@ import Modal from "../Shared/Modal";
 import Pagination from "../Shared/Pagination";
 import Button from "../Shared/Button";
 import { RxCross2 } from "react-icons/rx";
+import { Link } from "react-router-dom";
 
 const users = [
   {
+    user_id: 1,
     userName: "Jake Riggins",
     email: "jake.riggins@email.com",
     type: "Yearly",
     photo: "https://i.pravatar.cc/150?img=1",
   },
   {
+    user_id: 2,
     userName: "Sarah Newton",
     email: "sarah.newton@email.com",
     type: "Free",
     photo: "https://i.pravatar.cc/150?img=2",
   },
   {
+    user_id: 3,
     userName: "Leo Matthews",
     email: "leo.matthews@email.com",
     type: "Monthly",
     photo: "https://i.pravatar.cc/150?img=3",
   },
   {
+    user_id: 1,
     userName: "Mia Harper",
     email: "mia.harper@email.com",
     type: "Yearly",
     photo: "https://i.pravatar.cc/150?img=4",
   },
   {
+    user_id: 1,
     userName: "Ethan Blake",
     email: "ethan.blake@email.com",
     type: "Yearly",
     photo: "https://i.pravatar.cc/150?img=5",
   },
   {
+    user_id: 1,
     userName: "Ava Robinson",
     email: "ava.robinson@email.com",
     type: "Free",
     photo: "https://i.pravatar.cc/150?img=6",
   },
   {
+    user_id: 1,
     userName: "Noah Carter",
     email: "noah.carter@email.com",
     type: "Monthly",
     photo: "https://i.pravatar.cc/150?img=7",
   },
   {
+    user_id: 1,
     userName: "Grace Watson",
     email: "grace.watson@email.com",
     type: "Yearly",
     photo: "https://i.pravatar.cc/150?img=8",
   },
   {
+    user_id: 1,
     userName: "Lucas James",
     email: "lucas.james@email.com",
     type: "Yearly",
     photo: "https://i.pravatar.cc/150?img=9",
   },
   {
+    user_id: 1,
     userName: "Lily Brooks",
     email: "lily.brooks@email.com",
     type: "Monthly",
     photo: "https://i.pravatar.cc/150?img=10",
   },
   {
+    user_id: 1,
     userName: "Mason Lee",
     email: "mason.lee@email.com",
     type: "Yearly",
     photo: "https://i.pravatar.cc/150?img=11",
   },
   {
+    user_id: 1,
     userName: "Chloe Davis",
     email: "chloe.davis@email.com",
     type: "Free",
     photo: "https://i.pravatar.cc/150?img=12",
   },
   {
+    user_id: 1,
     userName: "Benjamin Adams",
     email: "ben.adams@email.com",
     type: "Yearly",
     photo: "https://i.pravatar.cc/150?img=13",
   },
   {
+    user_id: 1,
     userName: "Amelia Clark",
     email: "amelia.clark@email.com",
     type: "Monthly",
     photo: "https://i.pravatar.cc/150?img=14",
   },
   {
+    user_id: 1,
     userName: "Henry Cooper",
     email: "henry.cooper@email.com",
     type: "Yearly",
@@ -145,6 +161,7 @@ export default function UserDataTable() {
     event.stopPropagation();
     modalSetter(true);
   };
+  const handleViewDetails = (id) => {};
 
   return (
     <div className="bg-accent font-lora h-[90vh]">
@@ -154,6 +171,7 @@ export default function UserDataTable() {
           <h1 className="text-3xl font-semibold">Client Management</h1>
 
           <div className="flex items-center gap-4">
+            {/* search */}
             <input
               type="text"
               placeholder="Search by name..."
@@ -161,6 +179,7 @@ export default function UserDataTable() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
+            {/* filter */}
             <div className="relative">
               <select
                 value={sortBy}
@@ -205,7 +224,6 @@ export default function UserDataTable() {
                 <th className="px-6 py-3 text-left text-sm font-medium text-neutral tracking-wider">
                   Type
                 </th>
-
                 <th className="px-6 py-3 text-right text-sm font-medium text-neutral tracking-wider">
                   Action
                 </th>
@@ -244,13 +262,11 @@ export default function UserDataTable() {
                     </td>
 
                     <td className="px-6 py-4 whitespace-nowrap space-x-5 text-right">
-                      <button
-                        onClick={(e) => {
-                          setSelectedUserId(user?.user_id);
-                        }}
-                      >
-                        <LuEye className="text-2xl cursor-pointer" />
-                      </button>
+                      <Link to={`/client/${user?.user_id}`}>
+                        <button>
+                          <LuEye className="text-2xl cursor-pointer" />
+                        </button>
+                      </Link>
                       <button
                         onClick={(e) => {
                           handleButtonClick(e, setOpenDltModal);
