@@ -56,28 +56,21 @@ const Overview = () => {
     {
       title: "Total Clients",
       value: "726",
-      change: "+6",
     },
-    {
-      title: "AVG Progress",
-      value: "67.90%",
-      change: "+2.6%",
-    },
+  
     {
       title: "Total Revenue",
       value: "$56k",
-      change: "+1k",
     },
     {
-      title: "At Risk",
-      value: "3",
-      change: "-1",
+      title: "Total Subscribers",
+      value: "726",
     },
   ];
 
   return (
     <div className="p-6 h-[90vh] overflow-y-scroll">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto bg-white">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto bg-white">
         {metrics.map((metric, idx) => (
           <div
             key={idx}
@@ -90,9 +83,7 @@ const Overview = () => {
 
               <div className="text-3xl font-bold text-dark">{metric.value}</div>
 
-              <div className={`text-sm font-medium text-neutral/60`}>
-                {metric.change} from last month
-              </div>
+             
             </div>
           </div>
         ))}

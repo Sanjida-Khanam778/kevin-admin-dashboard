@@ -1,18 +1,16 @@
 import { useState } from "react";
 import { LuEye } from "react-icons/lu";
-import { RiDeleteBin6Line } from "react-icons/ri";
 import avatar from "../../assets/images/Avatar.png";
 import toast from "react-hot-toast";
-import Modal from "../Shared/Modal";
 import Pagination from "../Shared/Pagination";
-import Button from "../Shared/Button";
-import { RxCross2 } from "react-icons/rx";
+import DeleteConfirmationModal from "../Shared/DeleteConfirmationModal";
 import { Link } from "react-router-dom";
 import one from "../../assets/images/recipe/recipe1.webp";
 import two from "../../assets/images/recipe/recipe2.webp";
 import three from "../../assets/images/recipe/recipe3.jpeg";
 import four from "../../assets/images/recipe/recipe4.jpg";
 import five from "../../assets/images/recipe/recipe5.webp";
+import { Plus, SquarePen } from "lucide-react";
 import { MdFileUpload } from "react-icons/md";
 const recipes = [
   {
@@ -161,6 +159,10 @@ export default function Workout() {
                 </svg>
               </div>
             </div>
+            {/* add recipe */}
+            <button className="bg-primary text-white px-4 py-2 rounded-md">
+              <Plus className="text-2xl" />
+            </button>
           </div>
         </div>
 
@@ -169,17 +171,17 @@ export default function Workout() {
           <table className="w-full mx-auto mt-10">
             <thead className="">
               <tr>
-                <th className="px-6 py-3 text-left text-sm font-medium text-neutral tracking-wider">
+                <th className="px-6 py-3 text-left font-bold text-neutral tracking-wider">
                   Recipe Name
                 </th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-neutral tracking-wider">
+                <th className="px-6 py-3 text-left font-bold text-neutral tracking-wider">
                   Recipe Type
                 </th>
 
-                <th className="px-6 py-3 text-left text-sm font-medium text-neutral tracking-wider">
+                <th className="px-6 py-3 text-left font-bold text-neutral tracking-wider">
                   For Time
                 </th>
-                <th className="px-6 py-3 text-right text-sm font-medium text-neutral tracking-wider">
+                <th className="px-6 py-3 text-right font-bold text-neutral tracking-wider">
                   Action
                 </th>
               </tr>
@@ -221,40 +223,19 @@ export default function Workout() {
                           <LuEye className="text-2xl cursor-pointer" />
                         </button>
                       </Link>
-                      <button
-                       
-                      >
-                        <MdFileUpload className="text-2xl cursor-pointer" />
+                      <button>
+                        <SquarePen className="text-2xl cursor-pointer" />
                       </button>
                     </td>
                   </tr>
                 ))
               )}
             </tbody>
-            <Modal isOpen={openDltModal} onClose={() => setOpenDltModal(false)}>
-              <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                <div className="bg-white rounded-lg p-8 max-w-sm w-full flex flex-col items-center text-center relative">
-                  {/* Close icon */}
-                  <div onClick={() => setOpenDltModal(false)}>
-                    <RxCross2 className="absolute top-4 right-4 cursor-pointer text-xl" />
-                  </div>
-
-                  {/* Warning message */}
-                  <h2 className="text-red-500 font-semibold text-xl mt-6 mb-8">
-                    Are you sure !!
-                  </h2>
-
-                  {/* Confirmation question */}
-                  <p className="text-primary text-lg mb-8">
-                    Do you want to delete this user ?
-                  </p>
-
-                  <div onClick={handleDeleteUser}>
-                    <Button>Delete</Button>
-                  </div>
-                </div>
-              </div>
-            </Modal>
+            <DeleteConfirmationModal
+              isOpen={openDltModal}
+              onClose={() => setOpenDltModal(false)}
+              onConfirm={handleDeleteUser}
+            />
           </table>
         </div>
 

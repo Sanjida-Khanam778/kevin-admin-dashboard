@@ -36,12 +36,7 @@ export default function UserInfo() {
               </span>
               <p className="text-purple-600 text-sm font-medium">Active</p>
             </div>
-            <div>
-              <span className="text-lg text-primary font-semibold ">
-                Billing Information:
-              </span>
-              <p className="text-gray-600 text-sm">Credit Card (****4242)</p>
-            </div>
+            
             <div>
               <span className="text-lg text-primary font-semibold ">
                 Start Date:

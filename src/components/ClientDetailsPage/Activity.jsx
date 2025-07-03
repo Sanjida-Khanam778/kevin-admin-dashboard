@@ -23,9 +23,9 @@ export default function Activity() {
       <div className="space-y-4">
         {activityData?.map((item, index) => (
           <div key={index} className="flex items-center justify-between">
-            <span className="text-sm text-gray-600">{item.label}</span>
-            <div className="flex items-center space-x-3">
-              <div className="w-48">
+            <span className="text-sm text-gray-600 w-28">{item.label}</span>
+            <div className="flex items-center space-x-3 w-full">
+              <div className="w-full">
                 <ProgressBar
                   percentage={
                     item.value === "60/66"

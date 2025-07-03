@@ -3,7 +3,6 @@ import BodyComposition from "./BodyComposition";
 import AppEngagement from "./AppEngagement";
 import Activity from "./Activity";
 export default function UserStats() {
- 
   return (
     <div className="bg-sidebar rounded-xl p-6">
       <div className="mb-4">
@@ -34,11 +33,10 @@ export default function UserStats() {
         {/* Body Composition */}
         <BodyComposition />
 
-        {/* App Engagement */}
-        <AppEngagement />
-
         {/* 15 Days Activity */}
-        <Activity />
+        <div className="col-span-2">
+          <Activity />
+        </div>
       </div>
     </div>
   );
