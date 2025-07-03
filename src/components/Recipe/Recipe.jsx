@@ -11,6 +11,7 @@ import three from "../../assets/images/recipe/recipe3.jpeg";
 import four from "../../assets/images/recipe/recipe4.jpg";
 import five from "../../assets/images/recipe/recipe5.webp";
 import { Plus, SquarePen } from "lucide-react";
+import { RiDeleteBin6Line } from "react-icons/ri";
 const recipes = [
   {
     id: "R001",
@@ -229,6 +230,14 @@ export default function Workout() {
                           <SquarePen className="text-2xl cursor-pointer" />
                         </button>
                       </Link>
+                      <button
+                        onClick={(e) => {
+                          handleButtonClick(e, setOpenDltModal);
+                          setSelectedUserId(user?.user_id);
+                        }}
+                      >
+                        <RiDeleteBin6Line className="text-2xl text-red-500 cursor-pointer" />
+                      </button>
                     </td>
                   </tr>
                 ))

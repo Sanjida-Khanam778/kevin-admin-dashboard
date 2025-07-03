@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { LuEye } from "react-icons/lu";
-import { RiDeleteBin6Line } from "react-icons/ri";
 import avatar from "../../assets/images/Avatar.png";
 import toast from "react-hot-toast";
 import Modal from "../Shared/Modal";
@@ -14,6 +13,9 @@ import three from "../../assets/images/Workout/workout-3.jpg";
 import four from "../../assets/images/Workout/workout-4.png";
 import five from "../../assets/images/Workout/workout-5.jpg";
 import { MdFileUpload } from "react-icons/md";
+import { Plus, SquarePen } from "lucide-react";
+import DeleteConfirmationModal from "../Shared/DeleteConfirmationModal";
+import { RiDeleteBin6Line } from "react-icons/ri";
 
 const workout = [
   {
@@ -162,6 +164,12 @@ export default function Workout() {
                 </svg>
               </div>
             </div>
+            {/* add workout */}
+            <Link to="/workout/upload">
+              <button className="bg-primary text-white px-4 py-2 rounded-md">
+                <Plus className="text-2xl" />
+              </button>
+            </Link>
           </div>
         </div>
 
@@ -170,17 +178,17 @@ export default function Workout() {
           <table className="w-full mx-auto mt-10">
             <thead className="">
               <tr>
-                <th className="px-6 py-3 text-left text-sm font-medium text-neutral tracking-wider">
+                <th className="px-6 py-3 text-left font-bold text-neutral tracking-wider">
                   Workout Name
                 </th>
 
-                <th className="px-6 py-3 text-left text-sm font-medium text-neutral tracking-wider">
+                <th className="px-6 py-3 text-left font-bold text-neutral tracking-wider">
                   Workout Type
                 </th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-neutral tracking-wider">
+                <th className="px-6 py-3 text-left font-bold text-neutral tracking-wider">
                   For
                 </th>
-                <th className="px-6 py-3 text-right text-sm font-medium text-neutral tracking-wider">
+                <th className="px-6 py-3 text-right font-bold text-neutral tracking-wider">
                   Action
                 </th>
               </tr>
@@ -217,45 +225,34 @@ export default function Workout() {
                     </td>
 
                     <td className="px-6 py-4 whitespace-nowrap space-x-5 text-right">
-                      <Link to={`/clients/${user?.id}`}>
+                      <Link to={`/workout/${user?.id}`}>
                         <button>
                           <LuEye className="text-2xl cursor-pointer" />
                         </button>
                       </Link>
+                      <Link to={`/workout/update/${user?.id}`}>
+                        <button>
+                          <SquarePen className="text-2xl cursor-pointer" />
+                        </button>
+                      </Link>
                       <button
-                       
+                        onClick={(e) => {
+                          handleButtonClick(e, setOpenDltModal);
+                          setSelectedUserId(user?.user_id);
+                        }}
                       >
-                        <MdFileUpload className="text-2xl cursor-pointer" />
+                        <RiDeleteBin6Line className="text-2xl text-red-500 cursor-pointer" />
                       </button>
                     </td>
                   </tr>
                 ))
               )}
             </tbody>
-            <Modal isOpen={openDltModal} onClose={() => setOpenDltModal(false)}>
-              <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                <div className="bg-white rounded-lg p-8 max-w-sm w-full flex flex-col items-center text-center relative">
-                  {/* Close icon */}
-                  <div onClick={() => setOpenDltModal(false)}>
-                    <RxCross2 className="absolute top-4 right-4 cursor-pointer text-xl" />
-                  </div>
-
-                  {/* Warning message */}
-                  <h2 className="text-red-500 font-semibold text-xl mt-6 mb-8">
-                    Are you sure !!
-                  </h2>
-
-                  {/* Confirmation question */}
-                  <p className="text-primary text-lg mb-8">
-                    Do you want to delete this user ?
-                  </p>
-
-                  <div onClick={handleDeleteUser}>
-                    <Button>Delete</Button>
-                  </div>
-                </div>
-              </div>
-            </Modal>
+            <DeleteConfirmationModal
+              isOpen={openDltModal}
+              onClose={() => setOpenDltModal(false)}
+              onConfirm={handleDeleteUser}
+            />
           </table>
         </div>
 
