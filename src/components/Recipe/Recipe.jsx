@@ -13,6 +13,7 @@ import two from "../../assets/images/recipe/recipe2.webp";
 import three from "../../assets/images/recipe/recipe3.jpeg";
 import four from "../../assets/images/recipe/recipe4.jpg";
 import five from "../../assets/images/recipe/recipe5.webp";
+import { MdFileUpload } from "react-icons/md";
 const recipes = [
   {
     id: "R001",
@@ -215,18 +216,15 @@ export default function Workout() {
                     </td>
 
                     <td className="px-6 py-4 whitespace-nowrap space-x-5 text-right">
-                      <Link to={`/clients/${user?.id}`}>
+                      <Link to={`/recipe/${user?.id}`}>
                         <button>
                           <LuEye className="text-2xl cursor-pointer" />
                         </button>
                       </Link>
                       <button
-                        onClick={(e) => {
-                          handleButtonClick(e, setOpenDltModal);
-                          setSelectedUserId(user?.id);
-                        }}
+                       
                       >
-                        <RiDeleteBin6Line className="text-2xl text-red-500 cursor-pointer" />
+                        <MdFileUpload className="text-2xl cursor-pointer" />
                       </button>
                     </td>
                   </tr>

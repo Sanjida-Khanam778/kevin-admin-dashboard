@@ -13,6 +13,7 @@ import two from "../../assets/images/Workout/workout-2.jpg";
 import three from "../../assets/images/Workout/workout-3.jpg";
 import four from "../../assets/images/Workout/workout-4.png";
 import five from "../../assets/images/Workout/workout-5.jpg";
+import { MdFileUpload } from "react-icons/md";
 
 const workout = [
   {
@@ -222,12 +223,9 @@ export default function Workout() {
                         </button>
                       </Link>
                       <button
-                        onClick={(e) => {
-                          handleButtonClick(e, setOpenDltModal);
-                          setSelectedUserId(user?.id);
-                        }}
+                       
                       >
-                        <RiDeleteBin6Line className="text-2xl text-red-500 cursor-pointer" />
+                        <MdFileUpload className="text-2xl cursor-pointer" />
                       </button>
                     </td>
                   </tr>

@@ -7,6 +7,8 @@ import Subscription from "../components/Subscription/Subscription";
 import Clients from "../components/Clients/Clients";
 import Workout from "../components/Workout/Workout";
 import UserProfileDashboard from "../components/UserProfileDashboard UserProfileDashboard/UserProfileDashboard";
+import RecipeDetails from "../components/RecipeDetails/RecipeDetails";
+import SignIn from "../Pages/Auth/SignIn";
 
 export const router = createBrowserRouter([
   {
@@ -31,6 +33,10 @@ export const router = createBrowserRouter([
         element: <Recipe />,
       },
       {
+        path: "/recipe/:id",
+        element: <RecipeDetails />,
+      },
+      {
         path: "/workout",
         element: <Workout />,
       },
@@ -46,6 +52,6 @@ export const router = createBrowserRouter([
   },
   {
     path: "/login",
-    element: <h1>Login</h1>,
+    element: <SignIn />,
   },
 ]);
