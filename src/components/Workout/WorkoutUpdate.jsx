@@ -260,11 +260,11 @@ const WorkoutUpdate = () => {
                 maxTags={4}
                 placeholder="Type here and press Enter..."
                 classNames={{
-                  tags: "flex flex-wrap gap-3 mb-2",
-                  tagInput: "flex-1",
+                  tags: "flex flex-row flex-wrap gap-3 items-center w-auto",
+                  tagInput: "flex-1 min-w-[120px]",
                   tagInputField:
-                    "w-full px-2 py-1 bg-gray-100 border-none outline-none text-sm cursor-default",
-                  tag: "bg-primary text-white px-3 py-1 rounded-md text-sm flex flex-row items-center gap-2",
+                    "px-2 py-1 bg-gray-100 border-none outline-none text-sm cursor-default",
+                  tag: "bg-primary text-white px-3 py-1 ml-2 rounded-md text-sm flex flex-row items-center gap-2 mb-2 w-auto inline-flex",
                   remove: "text-white hover:text-red-200 cursor-pointer ml-1",
                 }}
               />

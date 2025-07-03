@@ -175,7 +175,7 @@ export default function TextEditor() {
         terms_and_conditions: termsContent,
         privacy_policy: privacyContent,
       };
-      const res = await createTermsAndPolicy(response);
+      // const res = await createTermsAndPolicy(response);
       toast.success("Changes saved successfully!");
     } catch (error) {
       // console.log(error);
