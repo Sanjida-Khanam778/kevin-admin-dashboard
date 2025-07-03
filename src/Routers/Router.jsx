@@ -9,6 +9,8 @@ import Workout from "../components/Workout/Workout";
 import UserProfileDashboard from "../components/UserProfileDashboard UserProfileDashboard/UserProfileDashboard";
 import RecipeDetails from "../components/RecipeDetails/RecipeDetails";
 import SignIn from "../Pages/Auth/SignIn";
+import RecipeUploadForm from "../components/Recipe/RecipeUploadForm";
+import RecipeUpdate from "../components/Recipe/RecipeUpdate";
 
 export const router = createBrowserRouter([
   {
@@ -33,8 +35,16 @@ export const router = createBrowserRouter([
         element: <Recipe />,
       },
       {
+        path: "/recipe/upload",
+        element: <RecipeUploadForm />,
+      },
+      {
         path: "/recipe/:id",
         element: <RecipeDetails />,
+      },
+      {
+        path: "/recipe/update/:id",
+        element: <RecipeUpdate />,
       },
       {
         path: "/workout",

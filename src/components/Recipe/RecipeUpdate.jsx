@@ -4,25 +4,35 @@ import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { WithContext as ReactTags, SEPARATORS } from "react-tag-input";
 import toast from "react-hot-toast";
+import recipe from "../../assets/images/recipe/recipe1.webp";
 
-const RecipeUploadForm = () => {
-  const [formData, setFormData] = useState({
-    recipeName: "",
-    recipeType: "",
-    forTime: "Breakfast",
-    tag: "",
-    calories: "",
-    carbs: "",
-    protein: "",
-    fat: "",
-    makingTime: "",
-    ratings: "",
-    category: "",
-    time: "",
-    ingredients: "",
-    instructions: "",
-  });
-  const [tags, setTags] = useState([]);
+const defaultFormData = {
+  recipeName: "Classic Pancakes",
+  recipeType: "Breakfast",
+  forTime: "Breakfast",
+  tag: "",
+  calories: "520 kcal",
+  carbs: "58g",
+  protein: "12g",
+  fat: "24g",
+  makingTime: "20 minutes",
+  ratings: "4.8",
+  category: "Dessert",
+  time: "30 minutes",
+  ingredients:
+    "1.5 cups of all-purpose flour, 3.5 tsp baking powder, 1 tsp salt, 1 tbsp sugar, 1.25 cups milk, 1 egg, 3 tbsp butter (melted)",
+  instructions: `1. In a large bowl, sift together the flour, baking powder, salt, and sugar.\n2. Make a well in the center and pour in the milk, egg, and melted butter; mix until smooth.\n3. Heat a lightly oiled griddle or frying pan over medium-high heat.\n4. Pour or scoop the batter onto the griddle, using approximately 1/4 cup for each pancake.\n5. Brown on both sides and serve hot with maple syrup.`,
+};
+
+const defaultTags = [
+  { id: "Easy", text: "Easy" },
+  { id: "Quick", text: "Quick" },
+  { id: "Kids Friendly", text: "Kids Friendly" },
+];
+
+const RecipeUpdate = () => {
+  const [formData, setFormData] = useState(defaultFormData);
+  const [tags, setTags] = useState(defaultTags);
   const [resetFileUpload, setResetFileUpload] = useState(false);
 
   const handleInputChange = (e) => {
@@ -68,34 +78,10 @@ const RecipeUploadForm = () => {
     e.preventDefault();
     toast.success("Recipe uploaded successfully!");
 
-    // Reset all form fields
-    setFormData({
-      recipeName: "",
-      recipeType: "",
-      forTime: "Breakfast",
-      tag: "",
-      calories: "",
-      carbs: "",
-      protein: "",
-      fat: "",
-      makingTime: "",
-      ratings: "",
-      category: "",
-      time: "",
-      ingredients: "",
-      instructions: "",
-    });
-
-    // Clear tags
-    setTags([]);
-
-    // Reset file upload
+    setFormData(defaultFormData);
+    setTags(defaultTags);
     setResetFileUpload(true);
-
-    // Reset the reset flag after a short delay
-    setTimeout(() => {
-      setResetFileUpload(false);
-    }, 100);
+    setTimeout(() => setResetFileUpload(false), 100);
   };
 
   return (
@@ -124,7 +110,7 @@ const RecipeUploadForm = () => {
                   placeholder="Type here"
                   value={formData.recipeName}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
 
@@ -139,7 +125,7 @@ const RecipeUploadForm = () => {
                   placeholder="Type here"
                   value={formData.recipeType}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
               {/* For time */}
@@ -218,7 +204,7 @@ const RecipeUploadForm = () => {
                 subLabel="Click to upload"
                 fileTypes="JPG, PNG, SVG, GIF"
                 reset={resetFileUpload}
-                defaultImage={null}
+                defaultImage={recipe}
               />
             </div>
           </div>
@@ -237,7 +223,7 @@ const RecipeUploadForm = () => {
                   placeholder="Calories"
                   value={formData.calories}
                   onChange={handleInputChange}
-                  className="px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                 />
                 <input
                   type="text"
@@ -245,7 +231,7 @@ const RecipeUploadForm = () => {
                   placeholder="Carbs"
                   value={formData.carbs}
                   onChange={handleInputChange}
-                  className="px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                 />
                 <input
                   type="text"
@@ -253,7 +239,7 @@ const RecipeUploadForm = () => {
                   placeholder="Protein"
                   value={formData.protein}
                   onChange={handleInputChange}
-                  className="px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                 />
                 <input
                   type="text"
@@ -261,7 +247,7 @@ const RecipeUploadForm = () => {
                   placeholder="Fat"
                   value={formData.fat}
                   onChange={handleInputChange}
-                  className="px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
             </div>
@@ -278,7 +264,7 @@ const RecipeUploadForm = () => {
                   placeholder="Making time"
                   value={formData.makingTime}
                   onChange={handleInputChange}
-                  className="px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                 />
                 <input
                   type="text"
@@ -286,7 +272,7 @@ const RecipeUploadForm = () => {
                   placeholder="Ratings"
                   value={formData.ratings}
                   onChange={handleInputChange}
-                  className="px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                 />
                 <input
                   type="text"
@@ -294,7 +280,7 @@ const RecipeUploadForm = () => {
                   placeholder="Category"
                   value={formData.category}
                   onChange={handleInputChange}
-                  className="px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                 />
                 <input
                   type="text"
@@ -302,7 +288,7 @@ const RecipeUploadForm = () => {
                   placeholder="Time"
                   value={formData.time}
                   onChange={handleInputChange}
-                  className="px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
             </div>
@@ -321,7 +307,7 @@ const RecipeUploadForm = () => {
                 value={formData.ingredients}
                 onChange={handleInputChange}
                 rows={8}
-                className="w-full px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                className="w-full px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-primary resize-none"
               />
             </div>
 
@@ -336,7 +322,7 @@ const RecipeUploadForm = () => {
                 value={formData.instructions}
                 onChange={handleInputChange}
                 rows={8}
-                className="w-full px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                className="w-full px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-primary resize-none"
               />
             </div>
           </div>
@@ -356,4 +342,4 @@ const RecipeUploadForm = () => {
   );
 };
 
-export default RecipeUploadForm;
+export default RecipeUpdate;

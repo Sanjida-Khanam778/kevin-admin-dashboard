@@ -11,7 +11,6 @@ import three from "../../assets/images/recipe/recipe3.jpeg";
 import four from "../../assets/images/recipe/recipe4.jpg";
 import five from "../../assets/images/recipe/recipe5.webp";
 import { Plus, SquarePen } from "lucide-react";
-import { MdFileUpload } from "react-icons/md";
 const recipes = [
   {
     id: "R001",
@@ -160,9 +159,11 @@ export default function Workout() {
               </div>
             </div>
             {/* add recipe */}
-            <button className="bg-primary text-white px-4 py-2 rounded-md">
-              <Plus className="text-2xl" />
-            </button>
+            <Link to="/recipe/upload">
+              <button className="bg-primary text-white px-4 py-2 rounded-md">
+                <Plus className="text-2xl" />
+              </button>
+            </Link>
           </div>
         </div>
 
@@ -223,9 +224,11 @@ export default function Workout() {
                           <LuEye className="text-2xl cursor-pointer" />
                         </button>
                       </Link>
-                      <button>
-                        <SquarePen className="text-2xl cursor-pointer" />
-                      </button>
+                      <Link to={`/recipe/update/${user?.id}`}>
+                        <button>
+                          <SquarePen className="text-2xl cursor-pointer" />
+                        </button>
+                      </Link>
                     </td>
                   </tr>
                 ))
