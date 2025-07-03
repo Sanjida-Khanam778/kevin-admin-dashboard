@@ -136,13 +136,22 @@ export default function UserDataTable() {
     setOpenDltModal(false); // close modal
   };
 
+  // Calculate filtered and searched data before pagination
+  const filteredUsers = users.filter((u) => {
+    // Filter by type (sortBy)
+    const matchesType = sortBy === "" || u.type === sortBy;
+    // Search by userName (case-insensitive)
+    const matchesQuery = u.userName.toLowerCase().includes(query.toLowerCase());
+    return matchesType && matchesQuery;
+  });
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9;
-  // Calculate current page data
+  // Calculate current page data from filteredUsers
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentUsers = users?.slice(indexOfFirstItem, indexOfLastItem);
+  const currentUsers = filteredUsers.slice(indexOfFirstItem, indexOfLastItem);
 
   // Get type color
   const getTypeColor = (type) => {
