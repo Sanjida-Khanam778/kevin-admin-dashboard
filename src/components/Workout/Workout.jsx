@@ -2,17 +2,13 @@ import { useState } from "react";
 import { LuEye } from "react-icons/lu";
 import avatar from "../../assets/images/Avatar.png";
 import toast from "react-hot-toast";
-import Modal from "../Shared/Modal";
 import Pagination from "../Shared/Pagination";
-import Button from "../Shared/Button";
-import { RxCross2 } from "react-icons/rx";
 import { Link } from "react-router-dom";
 import one from "../../assets/images/Workout/workout-1.webp";
 import two from "../../assets/images/Workout/workout-2.jpg";
 import three from "../../assets/images/Workout/workout-3.jpg";
 import four from "../../assets/images/Workout/workout-4.png";
 import five from "../../assets/images/Workout/workout-5.jpg";
-import { MdFileUpload } from "react-icons/md";
 import { Plus, SquarePen } from "lucide-react";
 import DeleteConfirmationModal from "../Shared/DeleteConfirmationModal";
 import { RiDeleteBin6Line } from "react-icons/ri";
@@ -82,26 +78,30 @@ export default function Workout() {
   const [isLoading, setIsLoading] = useState(false);
   const [openDltModal, setOpenDltModal] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState(null);
+  const [workoutsState, setWorkoutsState] = useState(workout);
 
   const handleDeleteUser = async () => {
-    try {
-      const res = await deleteUser(selectedUserId).unwrap();
-      console.log(res);
-      toast.success(res?.message);
-    } catch (error) {
-      toast.error("Failed to delete user");
-      console.error("Delete error:", error);
-    }
-    setOpenDltModal(false); // close modal
+    setWorkoutsState((prev) => prev.filter((w) => w.id !== selectedUserId));
+    toast.success("Workout deleted successfully");
+    setOpenDltModal(false);
   };
+
+  // Calculate filtered and searched data before pagination
+  const filteredWorkouts = workoutsState.filter((w) => {
+    // Filter by target (sortBy)
+    const matchesTarget = sortBy === "" || w.target === sortBy;
+    // Search by name (case-insensitive)
+    const matchesQuery = w.name.toLowerCase().includes(query.toLowerCase());
+    return matchesTarget && matchesQuery;
+  });
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9;
-  // Calculate current page data
+  // Calculate current page data from filteredWorkouts
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentUsers = workout?.slice(indexOfFirstItem, indexOfLastItem);
+  const currentUsers = filteredWorkouts.slice(indexOfFirstItem, indexOfLastItem);
 
   // Get type color
   const getTypeColor = (type) => {
@@ -145,9 +145,14 @@ export default function Workout() {
                 className="appearance-none bg-white border border-borderGray rounded-md pl-6 pr-6 py-2 focus:outline-none focus:ring-1"
               >
                 <option value={""}>All</option>
-                <option value={"Yearly"}>Sort by: Yearly</option>
-                <option value={"Monthly"}>Sort by: Monthly</option>
-                <option value={"Free"}>Sort by: Free</option>
+                <option value={"Arms"}>Sort by: Arms</option>
+                <option value={"Legs"}>Sort by: Legs</option>
+                <option value={"Chest"}>Sort by: Chest</option>
+                <option value={"Back"}>Sort by: Back</option>
+                <option value={"Shoulders"}>Sort by: Shoulders</option>
+                <option value={"Belly"}>Sort by: Belly</option>
+                <option value={"Abs"}>Sort by: Abs</option>
+                <option value={"Full Body"}>Sort by: Full Body</option>
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                 <svg
@@ -238,7 +243,7 @@ export default function Workout() {
                       <button
                         onClick={(e) => {
                           handleButtonClick(e, setOpenDltModal);
-                          setSelectedUserId(user?.user_id);
+                          setSelectedUserId(user?.id);
                         }}
                       >
                         <RiDeleteBin6Line className="text-2xl text-red-500 cursor-pointer" />

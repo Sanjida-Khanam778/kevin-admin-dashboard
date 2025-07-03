@@ -66,7 +66,7 @@ const WorkoutUploadForm = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    toast.success("Recipe uploaded successfully!");
+    toast.success("Workout uploaded successfully!");
 
     // Reset all form fields
     setFormData({
@@ -102,7 +102,7 @@ const WorkoutUploadForm = () => {
     <div className="mx-auto p-6 bg-white h-[90vh] overflow-y-scroll w-full">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center mb-8">
-          <Link to={"/recipe"}>
+          <Link to={"/workout"}>
             <ArrowLeft className="w-6 h-6 text-gray-600 mr-4 cursor-pointer" />
           </Link>
           <h1 className="text-2xl font-semibold text-gray-800">
@@ -158,6 +158,7 @@ const WorkoutUploadForm = () => {
                   <option value="back">Back</option>
                   <option value="chest">Chest</option>
                   <option value="shoulder">Shoulder</option>
+                  <option value="belly">Belly</option>
                   <option value="abs">Abs</option>
                   <option value="fullBody">Full Body</option>
                 </select>
@@ -275,14 +276,13 @@ const WorkoutUploadForm = () => {
                 maxTags={4}
                 placeholder="Type here and press Enter..."
                 classNames={{
-                    tags: "flex gap-3 overflow-x-auto whitespace-nowrap",
-                    tagInput: "flex-1",
-                    tagInputField:
-                      "px-2 py-1 bg-gray-100 border-none outline-none text-sm cursor-default",
-                    tag: "bg-primary text-white px-3 py-1 rounded-md text-sm flex flex-row items-center gap-2",
-                    remove: "text-white hover:text-red-200 cursor-pointer ml-1",
-                  }}
-                  
+                  tags: "flex gap-3 overflow-x-auto whitespace-nowrap",
+                  tagInput: "flex-1",
+                  tagInputField:
+                    "px-2 py-1 bg-gray-100 border-none outline-none text-sm cursor-default",
+                  tag: "bg-primary text-white px-3 py-1 rounded-md text-sm flex flex-row items-center gap-2",
+                  remove: "text-white hover:text-red-200 cursor-pointer ml-1",
+                }}
               />
             </div>
           </div>

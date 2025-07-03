@@ -4,25 +4,34 @@ import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { WithContext as ReactTags, SEPARATORS } from "react-tag-input";
 import toast from "react-hot-toast";
+import one from "../../assets/images/Workout/workout.png";
+
+const defaultFormData = {
+  recipeName: "Push Up",
+  recipeType: "10 minutes",
+  forTime: "arms",
+  tag: "Strength",
+  calories: "100 kcal",
+  carbs: "0g",
+  protein: "5g",
+  fat: "2g",
+  makingTime: "10 minutes",
+  ratings: "4.5",
+  category: "Bodyweight",
+  time: "10 minutes",
+  ingredients: "No equipment needed. Just a mat.",
+  instructions: `1. Start in a plank position.\n2. Lower your body until your chest nearly touches the floor.\n3. Push yourself back up.\n4. Repeat for the desired number of reps.`,
+};
+
+const defaultTags = [
+  { id: "Strength", text: "Strength" },
+  { id: "Bodyweight", text: "Bodyweight" },
+  { id: "Quick", text: "Quick" },
+];
 
 const WorkoutUpdate = () => {
-  const [formData, setFormData] = useState({
-    recipeName: "",
-    recipeType: "",
-    forTime: "Breakfast",
-    tag: "",
-    calories: "",
-    carbs: "",
-    protein: "",
-    fat: "",
-    makingTime: "",
-    ratings: "",
-    category: "",
-    time: "",
-    ingredients: "",
-    instructions: "",
-  });
-  const [tags, setTags] = useState([]);
+  const [formData, setFormData] = useState(defaultFormData);
+  const [tags, setTags] = useState(defaultTags);
   const [resetFileUpload, setResetFileUpload] = useState(false);
 
   const handleInputChange = (e) => {
@@ -66,36 +75,11 @@ const WorkoutUpdate = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    toast.success("Recipe uploaded successfully!");
-
-    // Reset all form fields
-    setFormData({
-      recipeName: "",
-      recipeType: "",
-      forTime: "Breakfast",
-      tag: "",
-      calories: "",
-      carbs: "",
-      protein: "",
-      fat: "",
-      makingTime: "",
-      ratings: "",
-      category: "",
-      time: "",
-      ingredients: "",
-      instructions: "",
-    });
-
-    // Clear tags
-    setTags([]);
-
-    // Reset file upload
+    toast.success("Workout updated successfully!");
+    setFormData(defaultFormData);
+    setTags(defaultTags);
     setResetFileUpload(true);
-
-    // Reset the reset flag after a short delay
-    setTimeout(() => {
-      setResetFileUpload(false);
-    }, 100);
+    setTimeout(() => setResetFileUpload(false), 100);
   };
 
   return (
@@ -158,6 +142,7 @@ const WorkoutUpdate = () => {
                   <option value="back">Back</option>
                   <option value="chest">Chest</option>
                   <option value="shoulder">Shoulder</option>
+                  <option value="belly">Belly</option>
                   <option value="abs">Abs</option>
                   <option value="fullBody">Full Body</option>
                 </select>
@@ -300,7 +285,7 @@ const WorkoutUpdate = () => {
                 subLabel="Click to upload"
                 fileTypes="JPG, PNG, SVG, GIF"
                 reset={resetFileUpload}
-                defaultImage={null}
+                defaultImage={one}
               />
             </div>
             {/* Benefits */}
