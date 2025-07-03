@@ -94,9 +94,19 @@ export default function Workout() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9;
   // Calculate current page data
+  const filteredRecipes = recipes.filter((recipe) => {
+    const matchesQuery = recipe.name
+      .toLowerCase()
+      .includes(query.toLowerCase());
+    const matchesSort = !sortBy || recipe.time === sortBy;
+    return matchesQuery && matchesSort;
+  });
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentUsers = recipes?.slice(indexOfFirstItem, indexOfLastItem);
+  const currentUsers = filteredRecipes?.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
 
   // Get type color
   const getTypeColor = (type) => {
@@ -140,9 +150,10 @@ export default function Workout() {
                 className="appearance-none bg-white border border-borderGray rounded-md pl-6 pr-6 py-2 focus:outline-none focus:ring-1"
               >
                 <option value={""}>All</option>
-                <option value={"Yearly"}>Sort by: Yearly</option>
-                <option value={"Monthly"}>Sort by: Monthly</option>
-                <option value={"Free"}>Sort by: Free</option>
+                <option value={"Breakfast"}>Sort by: Breakfast</option>
+                <option value={"Lunch"}>Sort by: Lunch</option>
+                <option value={"Dinner"}>Sort by: Dinner</option>
+                <option value={"Snacks"}>Sort by: Snacks</option>
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                 <svg
