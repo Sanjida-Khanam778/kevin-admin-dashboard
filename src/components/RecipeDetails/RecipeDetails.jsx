@@ -1,7 +1,17 @@
+import { ArrowLeft } from "lucide-react";
 import one from "../../assets/images/recipe/recipe1.webp";
+import { Link } from "react-router-dom";
 export default function RecipeDetails() {
   return (
     <div className="mx-auto p-6 bg-white w-full h-[90vh] overflow-y-scroll">
+       <div className="flex items-center mb-8">
+          <Link to={"/recipe"}>
+            <ArrowLeft className="w-6 h-6 text-gray-600 mr-4 cursor-pointer" />
+          </Link>
+          <h1 className="text-2xl font-semibold text-gray-800">
+             Recipe Details
+          </h1>
+        </div>
       {/* Main content area */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         {/* Left side - Image */}

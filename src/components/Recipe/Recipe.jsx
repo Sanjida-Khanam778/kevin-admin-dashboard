@@ -12,7 +12,8 @@ import four from "../../assets/images/recipe/recipe4.jpg";
 import five from "../../assets/images/recipe/recipe5.webp";
 import { Plus, SquarePen } from "lucide-react";
 import { RiDeleteBin6Line } from "react-icons/ri";
-const recipes = [
+
+const initialRecipes = [
   {
     id: "R001",
     image: one,
@@ -72,29 +73,24 @@ const recipes = [
 ];
 
 export default function Workout() {
+  const [recipesState, setRecipesState] = useState(initialRecipes);
   const [query, setQuery] = useState("");
   const [sortBy, setSortBy] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [openDltModal, setOpenDltModal] = useState(false);
-  const [selectedUserId, setSelectedUserId] = useState(null);
+  const [selectedRecipeId, setSelectedRecipeId] = useState(null);
 
-  const handleDeleteUser = async () => {
-    try {
-      const res = await deleteUser(selectedUserId).unwrap();
-      console.log(res);
-      toast.success(res?.message);
-    } catch (error) {
-      toast.error("Failed to delete user");
-      console.error("Delete error:", error);
-    }
-    setOpenDltModal(false); // close modal
+  const handleDeleteRecipe = () => {
+    setRecipesState((prev) => prev.filter((r) => r.id !== selectedRecipeId));
+    toast.success("Recipe deleted successfully");
+    setOpenDltModal(false);
   };
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9;
   // Calculate current page data
-  const filteredRecipes = recipes.filter((recipe) => {
+  const filteredRecipes = recipesState.filter((recipe) => {
     const matchesQuery = recipe.name
       .toLowerCase()
       .includes(query.toLowerCase());
@@ -244,7 +240,7 @@ export default function Workout() {
                       <button
                         onClick={(e) => {
                           handleButtonClick(e, setOpenDltModal);
-                          setSelectedUserId(user?.user_id);
+                          setSelectedRecipeId(user?.id);
                         }}
                       >
                         <RiDeleteBin6Line className="text-2xl text-red-500 cursor-pointer" />
@@ -257,7 +253,7 @@ export default function Workout() {
             <DeleteConfirmationModal
               isOpen={openDltModal}
               onClose={() => setOpenDltModal(false)}
-              onConfirm={handleDeleteUser}
+              onConfirm={handleDeleteRecipe}
             />
           </table>
         </div>
