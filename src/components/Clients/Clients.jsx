@@ -8,8 +8,10 @@ import Pagination from "../Shared/Pagination";
 import Button from "../Shared/Button";
 import { RxCross2 } from "react-icons/rx";
 import { Link } from "react-router-dom";
+import DeleteConfirmationModal from "../Shared/DeleteConfirmationModal";
+import React from "react";
 
-const users = [
+const initialUsers = [
   {
     user_id: 1,
     userName: "Jake Riggins",
@@ -32,84 +34,84 @@ const users = [
     photo: "https://i.pravatar.cc/150?img=3",
   },
   {
-    user_id: 1,
+    user_id: 4,
     userName: "Mia Harper",
     email: "mia.harper@email.com",
     type: "Yearly",
     photo: "https://i.pravatar.cc/150?img=4",
   },
   {
-    user_id: 1,
+    user_id: 5,
     userName: "Ethan Blake",
     email: "ethan.blake@email.com",
     type: "Yearly",
     photo: "https://i.pravatar.cc/150?img=5",
   },
   {
-    user_id: 1,
+    user_id: 6,
     userName: "Ava Robinson",
     email: "ava.robinson@email.com",
     type: "Free",
     photo: "https://i.pravatar.cc/150?img=6",
   },
   {
-    user_id: 1,
+    user_id: 7,
     userName: "Noah Carter",
     email: "noah.carter@email.com",
     type: "Monthly",
     photo: "https://i.pravatar.cc/150?img=7",
   },
   {
-    user_id: 1,
+    user_id: 8,
     userName: "Grace Watson",
     email: "grace.watson@email.com",
     type: "Yearly",
     photo: "https://i.pravatar.cc/150?img=8",
   },
   {
-    user_id: 1,
+    user_id: 9,
     userName: "Lucas James",
     email: "lucas.james@email.com",
     type: "Yearly",
     photo: "https://i.pravatar.cc/150?img=9",
   },
   {
-    user_id: 1,
+    user_id: 10,
     userName: "Lily Brooks",
     email: "lily.brooks@email.com",
     type: "Monthly",
     photo: "https://i.pravatar.cc/150?img=10",
   },
   {
-    user_id: 1,
+    user_id: 11,
     userName: "Mason Lee",
     email: "mason.lee@email.com",
     type: "Yearly",
     photo: "https://i.pravatar.cc/150?img=11",
   },
   {
-    user_id: 1,
+    user_id: 12,
     userName: "Chloe Davis",
     email: "chloe.davis@email.com",
     type: "Free",
     photo: "https://i.pravatar.cc/150?img=12",
   },
   {
-    user_id: 1,
+    user_id: 13,
     userName: "Benjamin Adams",
     email: "ben.adams@email.com",
     type: "Yearly",
     photo: "https://i.pravatar.cc/150?img=13",
   },
   {
-    user_id: 1,
+    user_id: 14,
     userName: "Amelia Clark",
     email: "amelia.clark@email.com",
     type: "Monthly",
     photo: "https://i.pravatar.cc/150?img=14",
   },
   {
-    user_id: 1,
+    user_id: 15,
     userName: "Henry Cooper",
     email: "henry.cooper@email.com",
     type: "Yearly",
@@ -118,6 +120,7 @@ const users = [
 ];
 
 export default function UserDataTable() {
+  const [users, setUsers] = useState(initialUsers);
   const [query, setQuery] = useState("");
   const [sortBy, setSortBy] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -126,14 +129,19 @@ export default function UserDataTable() {
 
   const handleDeleteUser = async () => {
     try {
-      const res = await deleteUser(selectedUserId).unwrap();
-      console.log(res);
-      toast.success(res?.message);
+      setIsLoading(true);
+      // Remove user from state
+      setUsers((prevUsers) =>
+        prevUsers.filter((user) => user.user_id !== selectedUserId)
+      );
+      toast.success("User deleted successfully");
     } catch (error) {
       toast.error("Failed to delete user");
       console.error("Delete error:", error);
+    } finally {
+      setIsLoading(false);
+      setOpenDltModal(false);
     }
-    setOpenDltModal(false); // close modal
   };
 
   // Calculate filtered and searched data before pagination
@@ -153,6 +161,11 @@ export default function UserDataTable() {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentUsers = filteredUsers.slice(indexOfFirstItem, indexOfLastItem);
 
+  // Reset to first page when filters change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [query, sortBy]);
+
   // Get type color
   const getTypeColor = (type) => {
     switch (type) {
@@ -170,7 +183,6 @@ export default function UserDataTable() {
     event.stopPropagation();
     modalSetter(true);
   };
-
 
   return (
     <div className="bg-accent font-lora h-[90vh]">
@@ -289,30 +301,11 @@ export default function UserDataTable() {
                 ))
               )}
             </tbody>
-            <Modal isOpen={openDltModal} onClose={() => setOpenDltModal(false)}>
-              <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                <div className="bg-white rounded-lg p-8 max-w-sm w-full flex flex-col items-center text-center relative">
-                  {/* Close icon */}
-                  <div onClick={() => setOpenDltModal(false)}>
-                    <RxCross2 className="absolute top-4 right-4 cursor-pointer text-xl" />
-                  </div>
-
-                  {/* Warning message */}
-                  <h2 className="text-red-500 font-semibold text-xl mt-6 mb-8">
-                    Are you sure !!
-                  </h2>
-
-                  {/* Confirmation question */}
-                  <p className="text-primary text-lg mb-8">
-                    Do you want to delete this user ?
-                  </p>
-
-                  <div onClick={handleDeleteUser}>
-                    <Button>Delete</Button>
-                  </div>
-                </div>
-              </div>
-            </Modal>
+            <DeleteConfirmationModal
+              isOpen={openDltModal}
+              onClose={() => setOpenDltModal(false)}
+              onConfirm={handleDeleteUser}
+            />
           </table>
         </div>
 
