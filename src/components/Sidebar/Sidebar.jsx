@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import "./Sidebar.css";
 import {
   PiChartPieSliceFill,
@@ -7,10 +7,11 @@ import {
 } from "react-icons/pi";
 import { HiOutlineUserGroup } from "react-icons/hi";
 import { LuDumbbell, LuSettings } from "react-icons/lu";
+import { LogOut } from "lucide-react";
 
 export default function Sidebar() {
   return (
-    <div className=" bg-sidebar h-screen sticky left-0 z-20">
+    <div className=" bg-sidebar h-screen sticky left-0 z-20 flex flex-col justify-between">
       <h1 className="uppercase p-8 text-xl font-bold font-inter leading-loose tracking-[0.3em] text-primary mb-6">
         <span className="text-3xl">K</span>
         <span className="">evin </span>
@@ -80,6 +81,12 @@ export default function Sidebar() {
           </li>
         </ul>
       </nav>
+      <Link to={"/login"}>
+        <button className="flex items-center px-8 py-8 text-xl w-full mx-auto text-red-500">
+          <LogOut className="mr-3" />
+          Logout
+        </button>
+      </Link>
     </div>
   );
 }
