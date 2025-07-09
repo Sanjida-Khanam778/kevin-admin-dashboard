@@ -67,7 +67,7 @@ const RecipeUploadForm = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     toast.success("Recipe uploaded successfully!");
-console.log(formData)
+    console.log(formData);
     // Reset all form fields
     setFormData({
       recipeName: "",
