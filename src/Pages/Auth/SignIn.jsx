@@ -1,16 +1,46 @@
 import { useState } from "react";
-import login from "../../assets/images/login.png";
+import loginImg from "../../assets/images/login.png";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
+import { useLoginMutation } from "../../Api/authApi";
+import { useDispatch, useSelector } from "react-redux";
+import { setCredentials } from "../../features/authSlice";
+import toast from "react-hot-toast";
 
 const SignIn = () => {
+  const credentials = useSelector((state) => state.auth);
+  console.log(credentials);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-  const handleSubmit = (e) => {
+  const dispatch = useDispatch();
+  const [login] = useLoginMutation();
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Login attempt:", { email, password });
+    const data = {
+      email: email,
+      password: password,
+    };
+    try {
+      const res = await login(data).unwrap();
+
+      const { access, refresh } = res;
+      // Dispatch userLoggedIn to update Redux state
+      dispatch(
+        setCredentials({
+          access: access,
+          refresh: refresh,
+        })
+      );
+      toast.success("Login successful!");
+    } catch (error) {
+      console.error("Login failed:", error);
+      return;
+    }
+    setEmail("");
+    setPassword("");
+    console.log("Login successful, redirecting...");
     navigate("/"); // Redirect to home page after login
   };
 
@@ -20,7 +50,7 @@ const SignIn = () => {
       <div className="hidden lg:flex w-5/12">
         <div className="relative h-screen w-full">
           <img
-            src={login}
+            src={loginImg}
             alt="Kevin Orellana Fitness"
             className="w-full h-full object-cover"
           />
@@ -78,7 +108,7 @@ const SignIn = () => {
                 Password
               </label>
               <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
                   <Lock className="h-5 w-5 text-black" />
                 </div>
                 <input
@@ -97,9 +127,9 @@ const SignIn = () => {
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
-                     <EyeOff className="h-5 w-5 text-black"/>
+                      <EyeOff className="h-5 w-5 text-black" />
                     ) : (
-                      <Eye className="h-5 w-5 text-black"/>
+                      <Eye className="h-5 w-5 text-black" />
                     )}
                   </button>
                 </div>

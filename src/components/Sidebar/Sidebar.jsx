@@ -8,8 +8,14 @@ import {
 import { HiOutlineUserGroup } from "react-icons/hi";
 import { LuDumbbell, LuSettings } from "react-icons/lu";
 import { LogOut } from "lucide-react";
+import { useDispatch } from "react-redux";
+import { logout } from "../../features/authSlice";
 
 export default function Sidebar() {
+  const dispatch = useDispatch();
+  const handleLogout = () =>{
+    dispatch(logout())
+  }
   return (
     <div className=" bg-sidebar h-screen sticky left-0 z-20 flex flex-col justify-between">
       <h1 className="uppercase p-8 text-xl font-bold font-inter leading-loose tracking-[0.3em] text-primary mb-6">
@@ -82,7 +88,7 @@ export default function Sidebar() {
         </ul>
       </nav>
       <Link to={"/login"}>
-        <button className="flex items-center px-8 py-8 text-xl w-full mx-auto text-red-500">
+        <button onClick={handleLogout} className="flex items-center px-8 py-8 text-xl w-full mx-auto text-red-500">
           <LogOut className="mr-3" />
           Logout
         </button>

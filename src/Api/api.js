@@ -1,10 +1,10 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: "",
+  baseUrl: "http://10.10.13.26:8000",
   prepareHeaders: (headers, { getState }) => {
     // Try to get token from Redux state
-    const token = getState().auth?.accessToken || null;
+    const token = getState().auth?.access || null;
     // If token not in state, retrieve from local storage
     if (token) {
       headers.set("authorization", `Bearer ${token}`);
@@ -21,6 +21,6 @@ const baseQuery = fetchBaseQuery({
 export const api = createApi({
   reducerPath: "baseApi",
   baseQuery: baseQuery,
-  tagTypes: ["users"],
+  tagTypes: ["users", "auth"],
   endpoints: () => ({}),
 });

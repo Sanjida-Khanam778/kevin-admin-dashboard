@@ -3,16 +3,16 @@ import { useSelector } from "react-redux";
 
 export function PrivateRoute({ children }) {
   // Retrieve auth data from localStorage
-  const Data = useSelector();
+  const Data = useSelector((state) => state.auth);
 
   // Check if user is not authenticated
-  if (!Data.accessToken && !Data.refreshToken) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+  if (!Data.access && !Data.refresh) {
+    return <Navigate to="/login"  />;
   }
 
   // Check if user is not verified
   if (!Data.isAuthenticated) {
-    return <Navigate to="/" state={{ from: location }} replace />;
+    return <Navigate to="/" />;
   }
 
   // User meets all requirements

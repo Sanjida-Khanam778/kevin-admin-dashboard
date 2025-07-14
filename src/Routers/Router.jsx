@@ -14,11 +14,12 @@ import RecipeUpdate from "../components/Recipe/RecipeUpdate";
 import WorkoutUploadForm from "../components/Workout/WorkoutUploadForm";
 import WorkoutDetails from "../components/WorkoutDetails/WorkoutDetails";
 import WorkoutUpdate from "../components/Workout/WorkoutUpdate";
+import { PrivateRoute } from "./PrivetRoute";
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <Dashboard />,
+    element: <PrivateRoute><Dashboard /></PrivateRoute>,
     errorElement: <h1>404</h1>,
     children: [
       {
