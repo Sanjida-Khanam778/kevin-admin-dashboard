@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LuEye } from "react-icons/lu";
 import avatar from "../../assets/images/Avatar.png";
 import toast from "react-hot-toast";
@@ -12,6 +12,7 @@ import four from "../../assets/images/recipe/recipe4.jpg";
 import five from "../../assets/images/recipe/recipe5.webp";
 import { Plus, SquarePen } from "lucide-react";
 import { RiDeleteBin6Line } from "react-icons/ri";
+import { useAllRecipeQuery } from "../../Api/authApi";
 
 const initialRecipes = [
   {
@@ -72,29 +73,28 @@ const initialRecipes = [
   },
 ];
 
-export default function Workout() {
-  const [recipesState, setRecipesState] = useState(initialRecipes);
+export default function Recipe() {
+  // Remove initialRecipes and recipesState state
+  // const [recipesState, setRecipesState] = useState(initialRecipes);
   const [query, setQuery] = useState("");
   const [sortBy, setSortBy] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [openDltModal, setOpenDltModal] = useState(false);
   const [selectedRecipeId, setSelectedRecipeId] = useState(null);
 
-  const handleDeleteRecipe = () => {
-    setRecipesState((prev) => prev.filter((r) => r.id !== selectedRecipeId));
-    toast.success("Recipe deleted successfully");
-    setOpenDltModal(false);
-  };
+  // Use mutation to fetch all recipes
+  const { data, isLoading } = useAllRecipeQuery();
+  const recipes = data?.results
+  console.log(recipes)
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9;
   // Calculate current page data
-  const filteredRecipes = recipesState.filter((recipe) => {
-    const matchesQuery = recipe.name
-      .toLowerCase()
+  const filteredRecipes = recipes?.filter((recipe) => {
+    const matchesQuery = recipe.recipe_name
+      ?.toLowerCase()
       .includes(query.toLowerCase());
-    const matchesSort = !sortBy || recipe.time === sortBy;
+    const matchesSort = !sortBy || recipe.for_time === sortBy;
     return matchesQuery && matchesSort;
   });
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -120,6 +120,13 @@ export default function Workout() {
   const handleButtonClick = (event, modalSetter) => {
     event.stopPropagation();
     modalSetter(true);
+  };
+
+  const handleDeleteRecipe = () => {
+    // TODO: Call backend delete API here if available
+    toast.success("Recipe deleted successfully");
+    setOpenDltModal(false);
+    // Optionally, refetch recipes here if delete API is implemented
   };
 
   return (
@@ -202,37 +209,37 @@ export default function Workout() {
                 </tr>
               ) : (
                 currentUsers &&
-                currentUsers?.map((user, idx) => (
-                  <tr key={idx} className="hover:bg-gray-50">
+                currentUsers?.map((recipe) => (
+                  <tr key={recipe.unique_id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <img
                           className="w-8 h-8 mr-4 rounded-full"
-                          src={user?.image || avatar}
+                          src={recipe?.image || avatar}
                           alt=""
                         />
                         <div className="text-sm font-medium text-gray-900">
-                          {user?.name}
+                          {recipe?.recipe_name}
                         </div>
                       </div>
                     </td>
 
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className={`text-sm ${getTypeColor(user?.type)}`}>
-                        {user?.type}
-                      </div>
+                      <div className={`text-sm`}>{recipe?.recipe_type}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-subgray">{user?.time}</div>
+                      <div className="text-sm text-subgray">
+                        {recipe?.for_time}
+                      </div>
                     </td>
 
                     <td className="px-6 py-4 whitespace-nowrap space-x-5 text-right">
-                      <Link to={`/recipe/${user?.id}`}>
+                      <Link to={`/recipe/${recipe?.unique_id}`}>
                         <button>
                           <LuEye className="text-2xl cursor-pointer" />
                         </button>
                       </Link>
-                      <Link to={`/recipe/update/${user?.id}`}>
+                      <Link to={`/recipe/update/${recipe?.unique_id}`}>
                         <button>
                           <SquarePen className="text-2xl cursor-pointer" />
                         </button>
@@ -240,7 +247,7 @@ export default function Workout() {
                       <button
                         onClick={(e) => {
                           handleButtonClick(e, setOpenDltModal);
-                          setSelectedRecipeId(user?.id);
+                          setSelectedRecipeId(recipe?.unique_id);
                         }}
                       >
                         <RiDeleteBin6Line className="text-2xl text-red-500 cursor-pointer" />

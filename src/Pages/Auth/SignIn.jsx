@@ -40,7 +40,6 @@ const SignIn = () => {
     }
     setEmail("");
     setPassword("");
-    console.log("Login successful, redirecting...");
     navigate("/"); // Redirect to home page after login
   };
 

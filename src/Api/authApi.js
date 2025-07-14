@@ -9,29 +9,24 @@ export const authApi = api.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      //   async onQueryStarted(arg, { dispatch, queryFulfilled }) {
-      //     try {
-      //       const { data } = await queryFulfilled;
-      //       const { refresh, access } = data;
-      //       console.log("access token", access);
-      //       // Dispatch userLoggedIn to update Redux state
-      //       dispatch(
-      //         setCredentials({
-      //           access: access,
-      //           refresh: refresh,
-      //         })
-      //       );
-
-      //       // Persist user data to localStorage
-      //       localStorage.setItem("auth", JSON.stringify({ refresh, access }));
-
-      //       console.log("Login successful:", data);
-      //     } catch (error) {
-      //       return;
-      //     }
-      //   },
+    }),
+    allRecipe: builder.query({
+      query: () => `/adminapi/recipes/`,
+      providesTags: ["users"],
+    }),
+    createRecipe: builder.mutation({
+      query: (data) => ({
+        url: "/adminapi/recipes/",
+        method: "POST",
+        body: data,
+        // Let fetchBaseQuery set Content-Type automatically for FormData
+        headers:
+          data instanceof FormData ? { "Content-Type": undefined } : undefined,
+      }),
+      invalidatesTags: ["users"],
     }),
   }),
 });
 
-export const { useLoginMutation } = authApi;
+export const { useLoginMutation, useAllRecipeQuery, useCreateRecipeMutation } =
+  authApi;

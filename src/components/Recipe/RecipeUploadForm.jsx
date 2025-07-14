@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { WithContext as ReactTags, SEPARATORS } from "react-tag-input";
 import toast from "react-hot-toast";
+import { useCreateRecipeMutation } from "../../Api/authApi";
+import { CgSpinner } from "react-icons/cg";
 
 const RecipeUploadForm = () => {
   const [formData, setFormData] = useState({
@@ -23,8 +25,12 @@ const RecipeUploadForm = () => {
     instructions: "",
   });
   const [tags, setTags] = useState([]);
-  const [resetFileUpload, setResetFileUpload] = useState(false);
-
+  // const [resetFileUpload, setResetFileUpload] = useState(false);
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [createRecipe, { isLoading, error, isSuccess }] =
+    useCreateRecipeMutation();
+console.log(isLoading)
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -58,44 +64,87 @@ const RecipeUploadForm = () => {
     console.log("The tag at index " + index + " was clicked");
   };
 
-  const handleFileUpload = (files) => {
-    console.log("Files uploaded:", files);
-    // You can add your file upload logic here
-    // For example, upload to server, store in state, etc.
+  const handleFileInputChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+      console.log("Image file set:", file);
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleDragOver = (e) => {
     e.preventDefault();
-    toast.success("Recipe uploaded successfully!");
-    console.log(formData);
-    // Reset all form fields
-    setFormData({
-      recipeName: "",
-      recipeType: "",
-      forTime: "Breakfast",
-      tag: "",
-      calories: "",
-      carbs: "",
-      protein: "",
-      fat: "",
-      makingTime: "",
-      ratings: "",
-      category: "",
-      time: "",
-      ingredients: "",
-      instructions: "",
-    });
+  };
 
-    // Clear tags
-    setTags([]);
+  const handleDrop = (e) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+      console.log("Image file set:", file);
+    }
+  };
 
-    // Reset file upload
-    setResetFileUpload(true);
-
-    // Reset the reset flag after a short delay
-    setTimeout(() => {
-      setResetFileUpload(false);
-    }, 100);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      console.log("Image file at submit:", imageFile);
+      const form = new FormData();
+      form.append("recipe_name", formData.recipeName);
+      form.append("recipe_type", formData.recipeType);
+      form.append("for_time", formData.forTime);
+      form.append("tag", tags.map((t) => t.text).join(","));
+      form.append("calories", formData.calories);
+      form.append("carbs", formData.carbs);
+      form.append("protein", formData.protein);
+      form.append("fat", formData.fat);
+      form.append("making_time", formData.makingTime);
+      // form.append('ratings', formData.ratings); // commented as per your change
+      form.append("category", formData.category);
+      form.append("time", formData.time);
+      form.append("ingredients", formData.ingredients);
+      form.append("instructions", formData.instructions);
+      if (imageFile) {
+        form.append("image", imageFile);
+        console.log("Appended image to FormData:", imageFile);
+      } else {
+        console.log("No image file to append");
+      }
+      // Log FormData content
+      for (let pair of form.entries()) {
+        console.log(pair[0] + ":", pair[1]);
+      }
+      // Log fetch call details
+      console.log("Calling createRecipe with FormData:", form);
+      await createRecipe(form).unwrap();
+      toast.success("Recipe uploaded successfully!");
+      // Reset all form fields
+      setFormData({
+        recipeName: "",
+        recipeType: "",
+        forTime: "",
+        tag: "",
+        calories: "",
+        carbs: "",
+        protein: "",
+        fat: "",
+        makingTime: "",
+        ratings: "",
+        category: "",
+        time: "",
+        ingredients: "",
+        instructions: "",
+      });
+      setTags([]);
+      setImageFile(null);
+      setImagePreview(null)
+      // setResetFileUpload(true);
+    
+    } catch (err) {
+      toast.error("Failed to upload recipe");
+    }
   };
 
   return (
@@ -208,18 +257,74 @@ const RecipeUploadForm = () => {
               </div>
             </div>
 
-            {/* File Upload */}
+            {/* Custom File Upload */}
             <div className="row-span-2">
-              <FileUpload
-                onFileSelect={handleFileUpload}
-                accept="image/*"
-                maxSize={5 * 1024 * 1024} // 5MB
-                label="Drop your recipe image here or"
-                subLabel="Click to upload"
-                fileTypes="JPG, PNG, SVG, GIF"
-                reset={resetFileUpload}
-                defaultImage={null}
-              />
+              <div
+                className="mb-6 border-2 border-dashed w-full mx-auto border-borderGray rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer"
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+              >
+                {imagePreview ? (
+                  <div className="relative w-full h-full">
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="w-full h-full object-contain" 
+                    />
+                    <button
+                      type="button"
+                      className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1"
+                      onClick={() => {
+                        setImageFile(null);
+                        setImagePreview(null);
+                      }}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-12 w-12 text-gray-400 mb-3"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                      />
+                    </svg>
+                    <p className="text-sm text-gray-500 mb-2">
+                      Drag and Drop here
+                    </p>
+                    <p className="text-sm text-gray-500 mb-2">or</p>
+                    <label className="bg-primary text-white py-2 px-4 rounded cursor-pointer">
+                      Select file
+                      <input
+                        type="file"
+                        className="hidden"
+                        onChange={handleFileInputChange}
+                        accept="image/*"
+                      />
+                    </label>
+                  </>
+                )}
+              </div>
             </div>
           </div>
 
@@ -232,7 +337,7 @@ const RecipeUploadForm = () => {
               </h3>
               <div className="grid grid-cols-2 gap-4">
                 <input
-                  type="text"
+                  type="number"
                   name="calories"
                   placeholder="Calories"
                   value={formData.calories}
@@ -240,7 +345,7 @@ const RecipeUploadForm = () => {
                   className="px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <input
-                  type="text"
+                  type="number"
                   name="carbs"
                   placeholder="Carbs"
                   value={formData.carbs}
@@ -248,7 +353,7 @@ const RecipeUploadForm = () => {
                   className="px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <input
-                  type="text"
+                  type="number"
                   name="protein"
                   placeholder="Protein"
                   value={formData.protein}
@@ -256,7 +361,7 @@ const RecipeUploadForm = () => {
                   className="px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <input
-                  type="text"
+                  type="number"
                   name="fat"
                   placeholder="Fat"
                   value={formData.fat}
@@ -275,19 +380,12 @@ const RecipeUploadForm = () => {
                 <input
                   type="text"
                   name="makingTime"
-                  placeholder="Making time"
+                  placeholder="Making time (hh:mm:ss)"
                   value={formData.makingTime}
                   onChange={handleInputChange}
                   className="px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-                <input
-                  type="text"
-                  name="ratings"
-                  placeholder="Ratings"
-                  value={formData.ratings}
-                  onChange={handleInputChange}
-                  className="px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+
                 <input
                   type="text"
                   name="category"
@@ -299,7 +397,7 @@ const RecipeUploadForm = () => {
                 <input
                   type="text"
                   name="time"
-                  placeholder="Time"
+                  placeholder="Time (hh:mm:ss)"
                   value={formData.time}
                   onChange={handleInputChange}
                   className="px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -347,7 +445,7 @@ const RecipeUploadForm = () => {
               type="submit"
               className="px-8 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
             >
-              Upload
+              {isLoading?<><CgSpinner></CgSpinner> "Uploading"</>: "Upload"}
             </button>
           </div>
         </form>
