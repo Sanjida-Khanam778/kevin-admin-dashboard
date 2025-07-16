@@ -210,7 +210,7 @@ export default function Recipe() {
               ) : (
                 currentUsers &&
                 currentUsers?.map((recipe) => (
-                  <tr key={recipe.unique_id} className="hover:bg-gray-50">
+                  <tr key={recipe.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <img
@@ -234,12 +234,12 @@ export default function Recipe() {
                     </td>
 
                     <td className="px-6 py-4 whitespace-nowrap space-x-5 text-right">
-                      <Link to={`/recipe/${recipe?.unique_id}`}>
+                      <Link to={`/recipe/${recipe?.id}`}>
                         <button>
                           <LuEye className="text-2xl cursor-pointer" />
                         </button>
                       </Link>
-                      <Link to={`/recipe/update/${recipe?.unique_id}`}>
+                      <Link to={`/recipe/update/${recipe?.id}`}>
                         <button>
                           <SquarePen className="text-2xl cursor-pointer" />
                         </button>
@@ -247,7 +247,7 @@ export default function Recipe() {
                       <button
                         onClick={(e) => {
                           handleButtonClick(e, setOpenDltModal);
-                          setSelectedRecipeId(recipe?.unique_id);
+                          setSelectedRecipeId(recipe?.id);
                         }}
                       >
                         <RiDeleteBin6Line className="text-2xl text-red-500 cursor-pointer" />

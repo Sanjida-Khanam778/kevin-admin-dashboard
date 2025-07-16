@@ -25,8 +25,27 @@ export const authApi = api.injectEndpoints({
       }),
       invalidatesTags: ["users"],
     }),
+    getRecipe: builder.query({
+      query: (id) => `/adminapi/recipes/${id}/`,
+      providesTags: ["users"],
+    }),
+    updateRecipe: builder.mutation({
+      query: ({ id, data }) => ({
+        url: `/adminapi/recipes/${id}/`,
+        method: "PATCH",
+        body: data,
+        headers:
+          data instanceof FormData ? { "Content-Type": undefined } : undefined,
+      }),
+      invalidatesTags: ["users"],
+    }),
   }),
 });
 
-export const { useLoginMutation, useAllRecipeQuery, useCreateRecipeMutation } =
-  authApi;
+export const {
+  useLoginMutation,
+  useAllRecipeQuery,
+  useCreateRecipeMutation,
+  useGetRecipeQuery,
+  useUpdateRecipeMutation,
+} = authApi;

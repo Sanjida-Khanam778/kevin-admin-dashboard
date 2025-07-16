@@ -1,23 +1,53 @@
 import { ArrowLeft } from "lucide-react";
 import one from "../../assets/images/recipe/recipe1.webp";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
+import { useGetRecipeQuery } from "../../Api/authApi";
 export default function RecipeDetails() {
+  const params = useParams();
+  const { data, isLoading: isFetching } = useGetRecipeQuery(params.id);
+  console.log(data);
+  const {
+    recipe_name,
+    tag,
+    ratings,
+    protein,
+    making_time,
+    instructions,
+    ingredients,
+    for_time,
+    fat,
+    category,
+    carbs,
+    image,
+    calories,
+  } = data || {};
+
+  // Helper to convert HH:MM:SS to 'X hours Y minutes Z sec'
+  function formatTime(hms) {
+    if (!hms) return "";
+    const [h, m, s] = hms.split(":").map(Number);
+    let str = "";
+    if (h) str += `${h} hour${h > 1 ? "s" : ""} `;
+    if (m) str += `${m} minute${m > 1 ? "s" : ""} `;
+    if (s) str += `${s} sec`;
+    return str.trim();
+  }
+
   return (
     <div className="mx-auto p-6 bg-white w-full h-[90vh] overflow-y-scroll">
-       <div className="flex items-center mb-8">
-          <Link to={"/recipe"}>
-            <ArrowLeft className="w-6 h-6 text-gray-600 mr-4 cursor-pointer" />
-          </Link>
-          <h1 className="text-2xl font-semibold text-gray-800">
-             Recipe Details
-          </h1>
-        </div>
+      <div className="flex items-center mb-8">
+        <Link to={"/recipe"}>
+          <ArrowLeft className="w-6 h-6 text-gray-600 mr-4 cursor-pointer" />
+        </Link>
+        <h1 className="text-2xl font-semibold text-gray-800">{recipe_name}</h1>
+      </div>
+
       {/* Main content area */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         {/* Left side - Image */}
         <div className="relative bg-sidebar p-6 rounded-lg">
           <img
-            src={one}
+            src={image}
             alt="Smoothie bowl with berries and granola"
             className="w-full h-full object-cover rounded-lg"
           />
@@ -33,19 +63,19 @@ export default function RecipeDetails() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-sm text-gray-600">Calories</p>
-                <p className="text-2xl font-bold text-gray-800">340</p>
+                <p className="text-2xl font-bold text-gray-800">{calories}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Carbs</p>
-                <p className="text-2xl font-bold text-gray-800">30g</p>
+                <p className="text-2xl font-bold text-gray-800">{carbs}g</p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Protein</p>
-                <p className="text-2xl font-bold text-gray-800">280g</p>
+                <p className="text-2xl font-bold text-gray-800">{protein}g</p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Fat</p>
-                <p className="text-2xl font-bold text-gray-800">10g</p>
+                <p className="text-2xl font-bold text-gray-800">{fat}g</p>
               </div>
             </div>
           </div>
@@ -58,21 +88,26 @@ export default function RecipeDetails() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-sm text-gray-600">Making time</p>
-                <p className="text-2xl font-bold text-gray-800">10 min</p>
+                <p className="text-2xl font-bold text-gray-800">
+                  {/* making_time display */}
+                  {formatTime(making_time)}
+                </p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Ratings</p>
-                <p className="text-2xl font-bold text-gray-800">4.6</p>
+                <p className="text-2xl font-bold text-gray-800">{ratings}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Category</p>
                 <p className="text-lg font-semibold text-gray-800">
-                  Cheat meal
+                  {category}
                 </p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Time</p>
-                <p className="text-lg font-semibold text-gray-800">Lunch</p>
+                <p className="text-lg font-semibold text-gray-800">
+                  {for_time}
+                </p>
               </div>
             </div>
           </div>
@@ -83,15 +118,16 @@ export default function RecipeDetails() {
       <div className="mb-8">
         <h3 className="text-lg font-semibold text-gray-800 mb-3">Tags</h3>
         <div className="flex flex-wrap gap-2">
-          <span className="px-3 py-1 bg-gray-800 text-white text-sm rounded-full">
-            High protein
-          </span>
-          <span className="px-3 py-1 bg-gray-800 text-white text-sm rounded-full">
-            Quick
-          </span>
-          <span className="px-3 py-1 bg-gray-800 text-white text-sm rounded-full">
-            Breakfast
-          </span>
+          {(tag || "").split(",").map((tag, idx) =>
+            tag.trim() ? (
+              <span
+                key={idx}
+                className="px-3 py-1 bg-gray-800 text-white text-sm rounded-full"
+              >
+                {tag.trim()}
+              </span>
+            ) : null
+          )}
         </div>
       </div>
 
@@ -99,18 +135,17 @@ export default function RecipeDetails() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Ingredients */}
         <div className="bg-gray-50 p-6 rounded-lg">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">
+          <h3 className="text-lg font-semibold text-gray-800 mb-3">
             Ingredients
           </h3>
-          <ul className="space-y-2 text-gray-700">
-            <li>• 1 cup oat flour</li>
-            <li>• 2 scoops vanilla protein powder</li>
-            <li>• 2 eggs</li>
-            <li>• 1 cup almond milk</li>
-            <li>• 1 tsp baking powder</li>
-            <li>• 1 tbsp honey</li>
-            <li>• 1/2 tsp vanilla extract</li>
-            <li>• Pinch of salt</li>
+          <ul className="list-disc list-inside mb-4">
+            {(ingredients || "").split(",").map((ingredient, idx) =>
+              ingredient.trim() ? (
+                <li key={idx} className="text-gray-700">
+                  {ingredient.trim()}
+                </li>
+              ) : null
+            )}
           </ul>
         </div>
 
@@ -119,15 +154,14 @@ export default function RecipeDetails() {
           <h3 className="text-lg font-semibold text-gray-800 mb-4">
             Instructions
           </h3>
-          <ol className="space-y-2 text-gray-700">
-            <li>1. Mix dry ingredients in a large bowl</li>
-            <li>2. Whisk wet ingredients in separate bowl</li>
-            <li>3. Combine wet and dry ingredients</li>
-            <li>4. Heat non-stick pan over medium heat</li>
-            <li>5. Pour 1/4 cup batter per pancake</li>
-            <li>6. Cook 2-3 minutes until bubbles form</li>
-            <li>7. Flip and cook 1-2 minutes more</li>
-            <li>8. Serve with fresh berries and syrup</li>
+          <ol className="list-decimal list-inside space-y-2 text-gray-700">
+            {(instructions || "")
+              .split(";")
+              .map((instructions, idx) =>
+                instructions.trim() ? (
+                  <li key={idx}>{instructions.trim()}</li>
+                ) : null
+              )}
           </ol>
         </div>
       </div>

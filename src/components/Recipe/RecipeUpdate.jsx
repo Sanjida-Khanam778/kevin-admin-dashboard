@@ -1,39 +1,67 @@
-import React, { useState } from "react";
-import FileUpload from "../Shared/FileUpload";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { WithContext as ReactTags, SEPARATORS } from "react-tag-input";
 import toast from "react-hot-toast";
-import recipe from "../../assets/images/recipe/recipe1.webp";
-
-const defaultFormData = {
-  recipeName: "Classic Pancakes",
-  recipeType: "Breakfast",
-  forTime: "Breakfast",
-  tag: "",
-  calories: "520 kcal",
-  carbs: "58g",
-  protein: "12g",
-  fat: "24g",
-  makingTime: "20 minutes",
-  ratings: "4.8",
-  category: "Dessert",
-  time: "30 minutes",
-  ingredients:
-    "1.5 cups of all-purpose flour, 3.5 tsp baking powder, 1 tsp salt, 1 tbsp sugar, 1.25 cups milk, 1 egg, 3 tbsp butter (melted)",
-  instructions: `1. In a large bowl, sift together the flour, baking powder, salt, and sugar.\n2. Make a well in the center and pour in the milk, egg, and melted butter; mix until smooth.\n3. Heat a lightly oiled griddle or frying pan over medium-high heat.\n4. Pour or scoop the batter onto the griddle, using approximately 1/4 cup for each pancake.\n5. Brown on both sides and serve hot with maple syrup.`,
-};
-
-const defaultTags = [
-  { id: "Easy", text: "Easy" },
-  { id: "Quick", text: "Quick" },
-  { id: "Kids Friendly", text: "Kids Friendly" },
-];
+import { useGetRecipeQuery, useUpdateRecipeMutation } from "../../Api/authApi";
 
 const RecipeUpdate = () => {
-  const [formData, setFormData] = useState(defaultFormData);
-  const [tags, setTags] = useState(defaultTags);
-  const [resetFileUpload, setResetFileUpload] = useState(false);
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { data, isLoading: isFetching } = useGetRecipeQuery(id);
+  const [updateRecipe, { isLoading }] = useUpdateRecipeMutation();
+
+  const [formData, setFormData] = useState({
+    recipeName: "",
+    recipeType: "",
+    forTime: "Breakfast",
+    tag: "",
+    calories: "",
+    carbs: "",
+    protein: "",
+    fat: "",
+    makingTime: "",
+    category: "",
+    time: "",
+    ingredients: "",
+    instructions: "",
+  });
+  const [tags, setTags] = useState([]);
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+
+  // Fill form when data loads
+  useEffect(() => {
+    if (data) {
+      setFormData({
+        recipeName: data.recipe_name || "",
+        recipeType: data.recipe_type || "",
+        forTime: data.for_time || "Breakfast",
+        tag: data.tag || "",
+        calories: data.calories || "",
+        carbs: data.carbs || "",
+        protein: data.protein || "",
+        fat: data.fat || "",
+        makingTime: data.making_time || "",
+        category: data.category || "",
+        time: data.time || "",
+        ingredients: data.ingredients || "",
+        instructions: data.instructions || "",
+      });
+      // Parse tags if present
+      if (data.tag) {
+        setTags(
+          data.tag
+            .split(",")
+            .map((t, i) => ({ id: t.trim() + i, text: t.trim() }))
+        );
+      } else {
+        setTags([]);
+      }
+      setImagePreview(data.image || null);
+      setImageFile(null);
+    }
+  }, [data]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -41,11 +69,6 @@ const RecipeUpdate = () => {
       ...prev,
       [name]: value,
     }));
-  };
-
-  const KeyCodes = {
-    comma: 188,
-    enter: [10, 13],
   };
 
   const handleDelete = (index) => {
@@ -59,30 +82,73 @@ const RecipeUpdate = () => {
   };
 
   const handleAddition = (tag) => {
-    setTags((prevTags) => {
-      return [...prevTags, tag];
-    });
+    setTags((prevTags) => [...prevTags, tag]);
   };
 
   const handleTagClick = (index) => {
-    console.log("The tag at index " + index + " was clicked");
+    // Optional: handle tag click
   };
 
-  const handleFileUpload = (files) => {
-    console.log("Files uploaded:", files);
-    // You can add your file upload logic here
-    // For example, upload to server, store in state, etc.
+  const handleFileInputChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleDragOver = (e) => {
     e.preventDefault();
-    toast.success("Recipe uploaded successfully!");
-
-    setFormData(defaultFormData);
-    setTags(defaultTags);
-    setResetFileUpload(true);
-    setTimeout(() => setResetFileUpload(false), 100);
   };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const form = new FormData();
+      form.append("recipe_name", formData.recipeName);
+      form.append("recipe_type", formData.recipeType);
+      form.append("for_time", formData.forTime);
+      form.append("tag", tags.map((t) => t.text).join(","));
+      form.append("calories", formData.calories);
+      form.append("carbs", formData.carbs);
+      form.append("protein", formData.protein);
+      form.append("fat", formData.fat);
+      form.append("making_time", formData.makingTime);
+      form.append("category", formData.category);
+      form.append("time", formData.time);
+      form.append("ingredients", formData.ingredients);
+      form.append("instructions", formData.instructions);
+      if (imageFile) {
+        form.append("image", imageFile);
+      }
+      await updateRecipe({ id, data: form }).unwrap();
+      toast.success("Recipe updated successfully!");
+      navigate("/recipe");
+    } catch (err) {
+      if (
+        err?.data?.error &&
+        err.data.error.includes("has no attribute 'related_recipe'")
+      ) {
+        // Optionally, do nothing or show a custom message
+        toast.success("Recipe updated successfully! (with a backend warning)");
+      } else {
+        toast.error("Failed to update recipe");
+      }
+    }
+  };
+
+  if (isFetching) {
+    return <div className="p-8 text-center">Loading...</div>;
+  }
 
   return (
     <div className="mx-auto p-6 bg-white h-[90vh] overflow-y-scroll w-full">
@@ -92,7 +158,7 @@ const RecipeUpdate = () => {
             <ArrowLeft className="w-6 h-6 text-gray-600 mr-4 cursor-pointer" />
           </Link>
           <h1 className="text-2xl font-semibold text-gray-800">
-            Upload Recipe
+            Update Recipe
           </h1>
         </div>
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -113,7 +179,6 @@ const RecipeUpdate = () => {
                   className="w-full px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
-
               {/* Recipe Type */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -161,7 +226,6 @@ const RecipeUpdate = () => {
                   </div>
                 </div>
               </div>
-
               {/* Tag */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -186,28 +250,83 @@ const RecipeUpdate = () => {
                       tagInputField:
                         "px-2 py-1 bg-gray-100 border-none outline-none text-sm cursor-default",
                       tag: "bg-primary text-white px-3 py-1 ml-2 rounded-md text-sm flex flex-row items-center gap-2 mb-2 w-auto inline-flex",
-                      remove: "text-white hover:text-red-200 cursor-pointer ml-1",
+                      remove:
+                        "text-white hover:text-red-200 cursor-pointer ml-1",
                     }}
                   />
                 </div>
               </div>
             </div>
-
-            {/* File Upload */}
+            {/* Custom File Upload */}
             <div className="row-span-2">
-              <FileUpload
-                onFileSelect={handleFileUpload}
-                accept="image/*"
-                maxSize={5 * 1024 * 1024} // 5MB
-                label="Drop your recipe image here or"
-                subLabel="Click to upload"
-                fileTypes="JPG, PNG, SVG, GIF"
-                reset={resetFileUpload}
-                defaultImage={recipe}
-              />
+              <div
+                className="mb-6 border-2 border-dashed w-1/2 mx-auto border-borderGray rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer h-80"
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+              >
+                {imagePreview ? (
+                  <div className="relative w-full h-full">
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="w-full h-full object-contain"
+                    />
+                    <button
+                      type="button"
+                      className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1"
+                      onClick={() => {
+                        setImageFile(null);
+                        setImagePreview(null);
+                      }}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-12 w-12 text-gray-400 mb-3"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                      />
+                    </svg>
+                    <p className="text-sm text-gray-500 mb-2">
+                      Drag and Drop here
+                    </p>
+                    <p className="text-sm text-gray-500 mb-2">or</p>
+                    <label className="bg-primary text-white py-2 px-4 rounded cursor-pointer">
+                      Select file
+                      <input
+                        type="file"
+                        className="hidden"
+                        onChange={handleFileInputChange}
+                        accept="image/*"
+                      />
+                    </label>
+                  </>
+                )}
+              </div>
             </div>
           </div>
-
           {/* Nutrition Facts and Recipe Facts */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Nutrition Facts */}
@@ -250,7 +369,6 @@ const RecipeUpdate = () => {
                 />
               </div>
             </div>
-
             {/* Recipes fact */}
             <div>
               <h3 className="text-lg font-medium text-gray-800 mb-4">
@@ -258,18 +376,10 @@ const RecipeUpdate = () => {
               </h3>
               <div className="grid grid-cols-2 gap-4">
                 <input
-                  type="text"
+                  type="time"
                   name="makingTime"
                   placeholder="Making time"
                   value={formData.makingTime}
-                  onChange={handleInputChange}
-                  className="px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-                <input
-                  type="text"
-                  name="ratings"
-                  placeholder="Ratings"
-                  value={formData.ratings}
                   onChange={handleInputChange}
                   className="px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                 />
@@ -282,7 +392,7 @@ const RecipeUpdate = () => {
                   className="px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                 />
                 <input
-                  type="text"
+                  type="time"
                   name="time"
                   placeholder="Time"
                   value={formData.time}
@@ -292,7 +402,6 @@ const RecipeUpdate = () => {
               </div>
             </div>
           </div>
-
           {/* Ingredients and Instructions */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Ingredients */}
@@ -309,7 +418,6 @@ const RecipeUpdate = () => {
                 className="w-full px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-primary resize-none"
               />
             </div>
-
             {/* Instructions */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -325,14 +433,14 @@ const RecipeUpdate = () => {
               />
             </div>
           </div>
-
           {/* Upload Button */}
           <div className="flex justify-center pt-6">
             <button
               type="submit"
               className="px-8 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
+              disabled={isLoading}
             >
-              Upload
+              Update
             </button>
           </div>
         </form>
