@@ -134,15 +134,7 @@ const RecipeUpdate = () => {
       toast.success("Recipe updated successfully!");
       navigate("/recipe");
     } catch (err) {
-      if (
-        err?.data?.error &&
-        err.data.error.includes("has no attribute 'related_recipe'")
-      ) {
-        // Optionally, do nothing or show a custom message
-        toast.success("Recipe updated successfully! (with a backend warning)");
-      } else {
-        toast.error("Failed to update recipe");
-      }
+      toast.error("Failed to update recipe");
     }
   };
 
