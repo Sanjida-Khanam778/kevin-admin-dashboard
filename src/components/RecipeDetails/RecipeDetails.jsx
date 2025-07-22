@@ -93,10 +93,10 @@ export default function RecipeDetails() {
                   {formatTime(making_time)}
                 </p>
               </div>
-              <div>
+              {/* <div>
                 <p className="text-sm text-gray-600">Ratings</p>
                 <p className="text-2xl font-bold text-gray-800">{ratings}</p>
-              </div>
+              </div> */}
               <div>
                 <p className="text-sm text-gray-600">Category</p>
                 <p className="text-lg font-semibold text-gray-800">

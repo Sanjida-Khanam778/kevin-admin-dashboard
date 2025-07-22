@@ -36,8 +36,6 @@ export const authApi = api.injectEndpoints({
         url: `/adminapi/recipes/${id}/`,
         method: "PATCH",
         body: data,
-        // headers:
-        //   data instanceof FormData ? { "Content-Type": undefined } : undefined,
       }),
       invalidatesTags: ["users"],
     }),
@@ -53,9 +51,13 @@ export const authApi = api.injectEndpoints({
     allWorkout: builder.query({
       query: ({ search = "", page = 1, page_size = 9, sort = "" } = {}) => {
         let url = `/adminapi/workouts/?search=${search}&page=${page}&page_size=${page_size}`;
-        if (sort) url += `&sort=${encodeURIComponent(sort)}`;
         return url;
       },
+      providesTags: ["users"],
+    }),
+
+    getWorkout: builder.query({
+      query: (id) => `/adminapi/workouts/${id}/`,
       providesTags: ["users"],
     }),
   }),
@@ -69,4 +71,5 @@ export const {
   useUpdateRecipeMutation,
   useDeleteRecipeMutation,
   useAllWorkoutQuery,
+  useGetWorkoutQuery,
 } = authApi;
