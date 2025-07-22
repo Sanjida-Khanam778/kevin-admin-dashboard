@@ -1,19 +1,15 @@
 import React, { useState } from "react";
-import FileUpload from "../Shared/FileUpload";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import { WithContext as ReactTags, SEPARATORS } from "react-tag-input";
 import toast from "react-hot-toast";
 import { useCreateRecipeMutation } from "../../Api/authApi";
 import { CgSpinner } from "react-icons/cg";
 import RecipeInfoFields from "./RecipeInfoFields";
-import TagInput from "./TagInput";
 import ImageUpload from "./ImageUpload";
 import NutritionFacts from "./NutritionFacts";
 import RecipeFacts from "./RecipeFacts";
 import IngredientsInput from "./IngredientsInput";
 import InstructionsInput from "./InstructionsInput";
-import UploadButton from "./UploadButton";
 
 const RecipeUploadForm = () => {
   const [formData, setFormData] = useState({
@@ -159,22 +155,21 @@ const RecipeUploadForm = () => {
             <RecipeInfoFields
               formData={formData}
               handleInputChange={handleInputChange}
-            />
-            <TagInput
               tags={tags}
               handleDelete={handleDelete}
               handleAddition={handleAddition}
               handleTagClick={handleTagClick}
               onTagUpdate={onTagUpdate}
             />
-            <ImageUpload
-              imagePreview={imagePreview}
-              handleDragOver={handleDragOver}
-              handleDrop={handleDrop}
-              handleFileInputChange={handleFileInputChange}
-              setImageFile={setImageFile}
-              setImagePreview={setImagePreview}
-            />
+              <ImageUpload
+                imagePreview={imagePreview}
+                handleDragOver={handleDragOver}
+                handleDrop={handleDrop}
+                handleFileInputChange={handleFileInputChange}
+                setImageFile={setImageFile}
+                setImagePreview={setImagePreview}
+              />
+        
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <NutritionFacts
@@ -197,7 +192,19 @@ const RecipeUploadForm = () => {
             />
           </div>
           <div className="flex justify-center pt-6">
-            <UploadButton isLoading={isLoading} />
+            <button
+              type="submit"
+              className="px-8 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
+              aria-label="Upload Recipe"
+            >
+              {isLoading ? (
+                <div className="flex items-center justify-center gap-4">
+                  <CgSpinner className="inline animate-spin mr-2" /><span> Uploading</span>
+                </div>
+              ) : (
+                "Upload"
+              )}
+            </button>
           </div>
         </form>
       </div>
