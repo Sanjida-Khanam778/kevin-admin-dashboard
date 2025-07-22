@@ -10,34 +10,53 @@ export const authApi = api.injectEndpoints({
         body: data,
       }),
     }),
+
     allRecipe: builder.query({
-      query: () => `/adminapi/recipes/`,
+      query: ({ search = "", page = 1, page_size = 9 } = {}) =>
+        `/adminapi/recipes/?search=${search}&page=${page}&page_size=${page_size}`,
       providesTags: ["users"],
     }),
+
     createRecipe: builder.mutation({
       query: (data) => ({
         url: "/adminapi/recipes/",
         method: "POST",
         body: data,
-        // Let fetchBaseQuery set Content-Type automatically for FormData
-        headers:
-          data instanceof FormData ? { "Content-Type": undefined } : undefined,
       }),
       invalidatesTags: ["users"],
     }),
+
     getRecipe: builder.query({
       query: (id) => `/adminapi/recipes/${id}/`,
       providesTags: ["users"],
     }),
+
     updateRecipe: builder.mutation({
       query: ({ id, data }) => ({
         url: `/adminapi/recipes/${id}/`,
         method: "PATCH",
         body: data,
-        headers:
-          data instanceof FormData ? { "Content-Type": undefined } : undefined,
+        // headers:
+        //   data instanceof FormData ? { "Content-Type": undefined } : undefined,
       }),
       invalidatesTags: ["users"],
+    }),
+
+    deleteRecipe: builder.mutation({
+      query: (id) => ({
+        url: `/adminapi/recipes/${id}/`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["users"],
+    }),
+
+    allWorkout: builder.query({
+      query: ({ search = "", page = 1, page_size = 9, sort = "" } = {}) => {
+        let url = `/adminapi/workouts/?search=${search}&page=${page}&page_size=${page_size}`;
+        if (sort) url += `&sort=${encodeURIComponent(sort)}`;
+        return url;
+      },
+      providesTags: ["users"],
     }),
   }),
 });
@@ -48,4 +67,6 @@ export const {
   useCreateRecipeMutation,
   useGetRecipeQuery,
   useUpdateRecipeMutation,
+  useDeleteRecipeMutation,
+  useAllWorkoutQuery,
 } = authApi;

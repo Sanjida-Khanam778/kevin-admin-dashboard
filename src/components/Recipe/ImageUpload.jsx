@@ -10,7 +10,7 @@ const ImageUpload = ({
 }) => (
   <div className="row-span-2">
     <div
-      className="mb-6 border-2 border-dashed w-full mx-auto border-borderGray rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer"
+      className="mb-6 border-2 border-dashed w-full h-[30vh] mx-auto border-borderGray rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer"
       onDragOver={handleDragOver}
       onDrop={handleDrop}
       aria-label="Image upload area"

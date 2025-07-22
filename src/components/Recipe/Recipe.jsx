@@ -5,128 +5,45 @@ import toast from "react-hot-toast";
 import Pagination from "../Shared/Pagination";
 import DeleteConfirmationModal from "../Shared/DeleteConfirmationModal";
 import { Link } from "react-router-dom";
-import one from "../../assets/images/recipe/recipe1.webp";
-import two from "../../assets/images/recipe/recipe2.webp";
-import three from "../../assets/images/recipe/recipe3.jpeg";
-import four from "../../assets/images/recipe/recipe4.jpg";
-import five from "../../assets/images/recipe/recipe5.webp";
 import { Plus, SquarePen } from "lucide-react";
 import { RiDeleteBin6Line } from "react-icons/ri";
-import { useAllRecipeQuery } from "../../Api/authApi";
-
-const initialRecipes = [
-  {
-    id: "R001",
-    image: one,
-    name: "Chicken Salad",
-    type: "Cheat meal",
-    time: "Breakfast",
-  },
-  {
-    id: "R002",
-    image: two,
-    name: "Nut & veg salad",
-    type: "High protein",
-    time: "Snacks",
-  },
-  {
-    id: "R003",
-    image: three,
-    name: "Chicken Salad",
-    type: "Cheat meal",
-    time: "Breakfast",
-  },
-  {
-    id: "R004",
-    image: four,
-    name: "Nut & veg salad",
-    type: "High protein",
-    time: "Snacks",
-  },
-  {
-    id: "R005",
-    image: five,
-    name: "Chicken Salad",
-    type: "Cheat meal",
-    time: "Breakfast",
-  },
-  {
-    id: "R006",
-    image: one,
-    name: "Nut & veg salad",
-    type: "High protein",
-    time: "Snacks",
-  },
-  {
-    id: "R007",
-    image: two,
-    name: "Chicken Salad",
-    type: "Cheat meal",
-    time: "Breakfast",
-  },
-  {
-    id: "R008",
-    image: three,
-    name: "Nut & veg salad",
-    type: "High protein",
-    time: "Snacks",
-  },
-];
+import { useAllRecipeQuery, useDeleteRecipeMutation } from "../../Api/authApi";
 
 export default function Recipe() {
   // Remove initialRecipes and recipesState state
   // const [recipesState, setRecipesState] = useState(initialRecipes);
   const [query, setQuery] = useState("");
   const [sortBy, setSortBy] = useState("");
+  const [deleteRecipe, { isLoading: isDeleting }] = useDeleteRecipeMutation();
   const [openDltModal, setOpenDltModal] = useState(false);
   const [selectedRecipeId, setSelectedRecipeId] = useState(null);
-
-  // Use mutation to fetch all recipes
-  const { data, isLoading } = useAllRecipeQuery();
-  const recipes = data?.results
-  console.log(recipes)
-
-  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9;
-  // Calculate current page data
-  const filteredRecipes = recipes?.filter((recipe) => {
-    const matchesQuery = recipe.recipe_name
-      ?.toLowerCase()
-      .includes(query.toLowerCase());
-    const matchesSort = !sortBy || recipe.for_time === sortBy;
-    return matchesQuery && matchesSort;
+  // Use mutation to fetch all recipes
+  const { data, isLoading } = useAllRecipeQuery({
+    search: query,
+    page: currentPage,
+    page_size: itemsPerPage,
   });
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentUsers = filteredRecipes?.slice(
-    indexOfFirstItem,
-    indexOfLastItem
-  );
+  const recipes = data?.results || [];
+  const totalItems = data?.count || 0;
+  console.log(recipes);
 
-  // Get type color
-  const getTypeColor = (type) => {
-    switch (type) {
-      case "Yearly":
-        return "text-green-500";
-      case "Monthly":
-        return "text-yellow-500";
-      case "Free":
-        return "text-neutral/80";
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
+  // Pagination state
+
+  const handleDelete = async () => {
+    if (!selectedRecipeId) return;
+    try {
+      await deleteRecipe(selectedRecipeId).unwrap();
+      toast.success("Recipe deleted successfully!");
+      setOpenDltModal(false);
+      setSelectedRecipeId(null);
+    } catch (err) {
+      toast.error("Failed to delete recipe");
     }
-  };
-
-  // Handle button click with event propagation stop
-  const handleButtonClick = (event, modalSetter) => {
-    event.stopPropagation();
-    modalSetter(true);
-  };
-
-  const handleDeleteRecipe = () => {
-    // TODO: Call backend delete API here if available
-    toast.success("Recipe deleted successfully");
-    setOpenDltModal(false);
-    // Optionally, refetch recipes here if delete API is implemented
   };
 
   return (
@@ -181,7 +98,6 @@ export default function Recipe() {
             </Link>
           </div>
         </div>
-
         {/* Table */}
         <div className="overflow-x-auto">
           <table className="w-full mx-auto mt-10">
@@ -208,8 +124,8 @@ export default function Recipe() {
                   <td>loading..</td>
                 </tr>
               ) : (
-                currentUsers &&
-                currentUsers?.map((recipe) => (
+                recipes &&
+                recipes?.map((recipe) => (
                   <tr key={recipe.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
@@ -245,9 +161,9 @@ export default function Recipe() {
                         </button>
                       </Link>
                       <button
-                        onClick={(e) => {
-                          handleButtonClick(e, setOpenDltModal);
-                          setSelectedRecipeId(recipe?.id);
+                        onClick={() => {
+                          setOpenDltModal(true);
+                          setSelectedRecipeId(recipe.id);
                         }}
                       >
                         <RiDeleteBin6Line className="text-2xl text-red-500 cursor-pointer" />
@@ -260,12 +176,16 @@ export default function Recipe() {
             <DeleteConfirmationModal
               isOpen={openDltModal}
               onClose={() => setOpenDltModal(false)}
-              onConfirm={handleDeleteRecipe}
+              onConfirm={handleDelete}
             />
           </table>
         </div>
-
-        <Pagination currentPage={currentPage} setCurrentPage={setCurrentPage} />
+        <Pagination
+          currentPage={currentPage}
+          totalItems={totalItems}
+          itemsPerPage={itemsPerPage}
+          onPageChange={handlePageChange}
+        />{" "}
       </div>
     </div>
   );

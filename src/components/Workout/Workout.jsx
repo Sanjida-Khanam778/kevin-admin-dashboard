@@ -4,121 +4,34 @@ import avatar from "../../assets/images/Avatar.png";
 import toast from "react-hot-toast";
 import Pagination from "../Shared/Pagination";
 import { Link } from "react-router-dom";
-import one from "../../assets/images/Workout/workout-1.webp";
-import two from "../../assets/images/Workout/workout-2.jpg";
-import three from "../../assets/images/Workout/workout-3.jpg";
-import four from "../../assets/images/Workout/workout-4.png";
-import five from "../../assets/images/Workout/workout-5.jpg";
 import { Plus, SquarePen } from "lucide-react";
 import DeleteConfirmationModal from "../Shared/DeleteConfirmationModal";
 import { RiDeleteBin6Line } from "react-icons/ri";
-
-const workout = [
-  {
-    id: "W001",
-    image: one,
-    name: "Leg plank",
-    type: "Without equipment",
-    target: "Belly",
-  },
-  {
-    id: "W002",
-    image: two,
-    name: "Leg plank",
-    type: "Without equipment",
-    target: "Belly",
-  },
-  {
-    id: "W003",
-    image: three,
-    name: "Leg plank",
-    type: "Without equipment",
-    target: "Belly",
-  },
-  {
-    id: "W004",
-    image: four,
-    name: "Leg plank",
-    type: "Without equipment",
-    target: "Belly",
-  },
-  {
-    id: "W005",
-    image: five,
-    name: "Leg plank",
-    type: "Without equipment",
-    target: "Belly",
-  },
-  {
-    id: "W006",
-    image: one,
-    name: "Leg plank",
-    type: "Without equipment",
-    target: "Belly",
-  },
-  {
-    id: "W007",
-    image: two,
-    name: "Leg plank",
-    type: "Without equipment",
-    target: "Belly",
-  },
-  {
-    id: "W008",
-    image: three,
-    name: "Leg plank",
-    type: "Without equipment",
-    target: "Belly",
-  },
-];
+import { useAllWorkoutQuery } from "../../Api/authApi";
 
 export default function Workout() {
   const [query, setQuery] = useState("");
   const [sortBy, setSortBy] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [openDltModal, setOpenDltModal] = useState(false);
-  const [selectedUserId, setSelectedUserId] = useState(null);
-  const [workoutsState, setWorkoutsState] = useState(workout);
-
-  const handleDeleteUser = async () => {
-    setWorkoutsState((prev) => prev.filter((w) => w.id !== selectedUserId));
-    toast.success("Workout deleted successfully");
-    setOpenDltModal(false);
-  };
-
-  // Calculate filtered and searched data before pagination
-  const filteredWorkouts = workoutsState.filter((w) => {
-    // Filter by target (sortBy)
-    const matchesTarget = sortBy === "" || w.target === sortBy;
-    // Search by name (case-insensitive)
-    const matchesQuery = w.name.toLowerCase().includes(query.toLowerCase());
-    return matchesTarget && matchesQuery;
-  });
-
-  // Pagination state
+  const [selectedWorkoutId, setSelectedWorkoutId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9;
-  // Calculate current page data from filteredWorkouts
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentUsers = filteredWorkouts.slice(indexOfFirstItem, indexOfLastItem);
 
-  // Get type color
-  const getTypeColor = (type) => {
-    switch (type) {
-      case "Yearly":
-        return "text-green-500";
-      case "Monthly":
-        return "text-yellow-500";
-      case "Free":
-        return "text-neutral/80";
-    }
-  };
+  // Fetch workouts from API
+  const { data, isLoading } = useAllWorkoutQuery({
+    search: query,
+    page: currentPage,
+    page_size: itemsPerPage,
+    sort: sortBy,
+  });
+  const workouts = data?.results || [];
+  const totalItems = data?.count || 0;
 
-  // Handle button click with event propagation stop
-  const handleButtonClick = (event, modalSetter) => {
-    event.stopPropagation();
-    modalSetter(true);
+  const handleDeleteWorkout = async () => {
+    // Implement delete logic with API if needed
+    toast.success("Workout deleted successfully");
+    setOpenDltModal(false);
+    setSelectedWorkoutId(null);
   };
 
   return (
@@ -135,13 +48,19 @@ export default function Workout() {
               placeholder="Search by name..."
               className="p-2 border rounded-md bg-white"
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setCurrentPage(1);
+              }}
             />
             {/* filter */}
             <div className="relative">
               <select
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
+                onChange={(e) => {
+                  setSortBy(e.target.value);
+                  setCurrentPage(1);
+                }}
                 className="appearance-none bg-white border border-borderGray rounded-md pl-6 pr-6 py-2 focus:outline-none focus:ring-1"
               >
                 <option value={""}>All</option>
@@ -186,7 +105,6 @@ export default function Workout() {
                 <th className="px-6 py-3 text-left font-bold text-neutral tracking-wider">
                   Workout Name
                 </th>
-
                 <th className="px-6 py-3 text-left font-bold text-neutral tracking-wider">
                   Workout Type
                 </th>
@@ -201,49 +119,52 @@ export default function Workout() {
             <tbody className="divide-y divide-borderGray">
               {isLoading ? (
                 <tr>
-                  <td>loading..</td>
+                  <td colSpan={4}>loading..</td>
+                </tr>
+              ) : workouts.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="text-center py-8">
+                    No workouts found.
+                  </td>
                 </tr>
               ) : (
-                currentUsers &&
-                currentUsers?.map((user, idx) => (
-                  <tr key={idx} className="hover:bg-gray-50">
+                workouts.map((workout) => (
+                  <tr key={workout.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <img
                           className="w-8 h-8 mr-4 rounded-full"
-                          src={user?.image || avatar}
+                          src={workout?.image || avatar}
                           alt=""
                         />
                         <div className="text-sm font-medium text-gray-900">
-                          {user?.name}
+                          {workout?.workout_name}
                         </div>
                       </div>
                     </td>
-
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className={`text-sm ${getTypeColor(user?.type)}`}>
-                        {user?.type}
+                      <div className="text-sm">{workout?.workout_type}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-subgray">
+                        {workout?.for_body_part}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-subgray">{user?.target}</div>
-                    </td>
-
                     <td className="px-6 py-4 whitespace-nowrap space-x-5 text-right">
-                      <Link to={`/workout/${user?.id}`}>
+                      <Link to={`/workout/${workout?.id}`}>
                         <button>
                           <LuEye className="text-2xl cursor-pointer" />
                         </button>
                       </Link>
-                      <Link to={`/workout/update/${user?.id}`}>
+                      <Link to={`/workout/update/${workout?.id}`}>
                         <button>
                           <SquarePen className="text-2xl cursor-pointer" />
                         </button>
                       </Link>
                       <button
-                        onClick={(e) => {
-                          handleButtonClick(e, setOpenDltModal);
-                          setSelectedUserId(user?.id);
+                        onClick={() => {
+                          setOpenDltModal(true);
+                          setSelectedWorkoutId(workout?.id);
                         }}
                       >
                         <RiDeleteBin6Line className="text-2xl text-red-500 cursor-pointer" />
@@ -256,12 +177,16 @@ export default function Workout() {
             <DeleteConfirmationModal
               isOpen={openDltModal}
               onClose={() => setOpenDltModal(false)}
-              onConfirm={handleDeleteUser}
+              onConfirm={handleDeleteWorkout}
             />
           </table>
         </div>
-
-        <Pagination currentPage={currentPage} setCurrentPage={setCurrentPage} />
+        <Pagination
+          currentPage={currentPage}
+          totalItems={totalItems}
+          itemsPerPage={itemsPerPage}
+          onPageChange={setCurrentPage}
+        />
       </div>
     </div>
   );
