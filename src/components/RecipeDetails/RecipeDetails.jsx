@@ -45,7 +45,7 @@ export default function RecipeDetails() {
       {/* Main content area */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         {/* Left side - Image */}
-        <div className="relative bg-sidebar p-6 rounded-lg">
+        <div className="relative bg-sidebar p-6 rounded-lg h-[500px]">
           <img
             src={image}
             alt="Smoothie bowl with berries and granola"

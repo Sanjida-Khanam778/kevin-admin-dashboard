@@ -1,29 +1,28 @@
-import React, { useState } from "react";
-import FileUpload from "../Shared/FileUpload";
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { WithContext as ReactTags, SEPARATORS } from "react-tag-input";
 import toast from "react-hot-toast";
+import { CgSpinner } from "react-icons/cg";
+import { useCreateWorkoutMutation } from "../../Api/authApi";
+import ImageUpload from "../Recipe/ImageUpload";
 
 const WorkoutUploadForm = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    recipeName: "",
-    recipeType: "",
-    forTime: "Breakfast",
-    tag: "",
-    calories: "",
-    carbs: "",
-    protein: "",
-    fat: "",
-    makingTime: "",
-    ratings: "",
-    category: "",
-    time: "",
-    ingredients: "",
-    instructions: "",
+    workout_name: "",
+    time_needed: "",
+    for_body_part: "Arms",
+    workout_type: "Light",
+    calories_burn: "",
+    equipment_needed: "No",
+    benefits: "",
   });
   const [tags, setTags] = useState([]);
-  const [resetFileUpload, setResetFileUpload] = useState(false);
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+
+  const [createWorkout, { isLoading }] = useCreateWorkoutMutation();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -33,69 +32,53 @@ const WorkoutUploadForm = () => {
     }));
   };
 
-  const KeyCodes = {
-    comma: 188,
-    enter: [10, 13],
+  const handleAddition = (tag) => {
+    setTags((prevTags) => [...prevTags, tag]);
   };
 
   const handleDelete = (index) => {
     setTags(tags.filter((_, i) => i !== index));
   };
 
-  const onTagUpdate = (index, newTag) => {
-    const updatedTags = [...tags];
-    updatedTags.splice(index, 1, newTag);
-    setTags(updatedTags);
+  const handleFileInputChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
   };
 
-  const handleAddition = (tag) => {
-    setTags((prevTags) => {
-      return [...prevTags, tag];
-    });
-  };
-
-  const handleTagClick = (index) => {
-    console.log("The tag at index " + index + " was clicked");
-  };
-
-  const handleFileUpload = (files) => {
-    console.log("Files uploaded:", files);
-    // You can add your file upload logic here
-    // For example, upload to server, store in state, etc.
-  };
-
-  const handleSubmit = (e) => {
+  const handleDragOver = (e) => e.preventDefault();
+  const handleDrop = (e) => {
     e.preventDefault();
-    toast.success("Workout uploaded successfully!");
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
 
-    // Reset all form fields
-    setFormData({
-      recipeName: "",
-      recipeType: "",
-      forTime: "Breakfast",
-      tag: "",
-      calories: "",
-      carbs: "",
-      protein: "",
-      fat: "",
-      makingTime: "",
-      ratings: "",
-      category: "",
-      time: "",
-      ingredients: "",
-      instructions: "",
-    });
-
-    // Clear tags
-    setTags([]);
-
-    // Reset file upload
-    setResetFileUpload(true);
-
-    // Reset the reset flag after a short delay
-    setTimeout(() => {
-      setResetFileUpload(false);
-    }, 100);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const form = new FormData();
+      form.append("workout_name", formData.workout_name);
+      form.append("time_needed", formData.time_needed);
+      form.append("for_body_part", formData.for_body_part);
+      form.append("workout_type", formData.workout_type);
+      form.append("calories_burn", formData.calories_burn);
+      form.append("equipment_needed", formData.equipment_needed);
+      form.append("benefits", formData.benefits);
+      form.append("tag", tags.map((t) => t.text).join(","));
+      if (imageFile) {
+        form.append("image", imageFile);
+      }
+      await createWorkout(form).unwrap();
+      toast.success("Workout uploaded successfully!");
+      navigate("/workout");
+    } catch (err) {
+      toast.error("Failed to upload workout");
+    }
   };
 
   return (
@@ -111,7 +94,6 @@ const WorkoutUploadForm = () => {
         </div>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-            {/* Top Row */}
             {/* Workout Name */}
             <div>
               <label className="block font-medium text-gray-700 mb-2">
@@ -119,24 +101,23 @@ const WorkoutUploadForm = () => {
               </label>
               <input
                 type="text"
-                name="recipeName"
+                name="workout_name"
                 placeholder="Type here"
-                value={formData.recipeName}
+                value={formData.workout_name}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-
             {/* Time Needed */}
             <div>
               <label className="block font-medium text-gray-700 mb-2">
-                Time Needed
+                Time Needed (HH:MM:SS)
               </label>
               <input
-                type="text"
-                name="recipeType"
-                placeholder="Type here"
-                value={formData.recipeType}
+                type="time"
+                name="time_needed"
+                placeholder="00:30:00"
+                value={formData.time_needed}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -146,81 +127,48 @@ const WorkoutUploadForm = () => {
               <label className="block font-medium text-gray-700 mb-2">
                 For Body Part
               </label>
-              <div className="relative">
-                <select
-                  name="forTime"
-                  value={formData.forTime}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 appearance-none pr-10"
-                >
-                  <option value="arms">Arms</option>
-                  <option value="legs">Legs</option>
-                  <option value="back">Back</option>
-                  <option value="chest">Chest</option>
-                  <option value="shoulder">Shoulder</option>
-                  <option value="belly">Belly</option>
-                  <option value="abs">Abs</option>
-                  <option value="fullBody">Full Body</option>
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                  <svg
-                    className="h-4 w-4"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-              </div>
+              <select
+                name="for_body_part"
+                value={formData.for_body_part}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 appearance-none pr-10"
+              >
+                <option value="Arms">Arms</option>
+                <option value="Legs">Legs</option>
+                <option value="Back">Back</option>
+                <option value="Chest">Chest</option>
+                <option value="Shoulder">Shoulder</option>
+                <option value="Belly">Belly</option>
+                <option value="Abs">Abs</option>
+                <option value="Full Body">Full Body</option>
+              </select>
             </div>
             {/* Workout Type */}
             <div>
               <label className="block font-medium text-gray-700 mb-2">
                 Workout Type
               </label>
-              <div className="relative">
-                <select
-                  name="forTime"
-                  value={formData.forTime}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 appearance-none pr-10"
-                >
-                  <option value="light">Light</option>
-                  <option value="medium">Medium</option>
-                  <option value="heavy">Heavy</option>
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                  <svg
-                    className="h-4 w-4"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-              </div>
+              <select
+                name="workout_type"
+                value={formData.workout_type}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 appearance-none pr-10"
+              >
+                <option value="Light">Light</option>
+                <option value="Medium">Medium</option>
+                <option value="Heavy">Heavy</option>
+              </select>
             </div>
-
             {/* Calories burn */}
             <div>
               <label className="block font-medium text-gray-700 mb-2">
                 Calories burn
               </label>
               <input
-                type="text"
-                name="recipeName"
-                placeholder="Type here"
-                value={formData.recipeName}
+                type="number"
+                name="calories_burn"
+                placeholder="e.g. 250.50"
+                value={formData.calories_burn}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -230,31 +178,15 @@ const WorkoutUploadForm = () => {
               <label className="block font-medium text-gray-700 mb-2">
                 Equipment Needed
               </label>
-              <div className="relative">
-                <select
-                  name="forTime"
-                  value={formData.forTime}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 appearance-none pr-10"
-                >
-                  <option value="no">No</option>
-                  <option value="yes">Yes</option>
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
-                  <svg
-                    className="h-4 w-4"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-              </div>
+              <select
+                name="equipment_needed"
+                value={formData.equipment_needed}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 appearance-none pr-10"
+              >
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+              </select>
             </div>
           </div>
           {/* Tag */}
@@ -262,72 +194,60 @@ const WorkoutUploadForm = () => {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Tag
             </label>
-            <div className="w-full px-3 py-1 bg-gray-100 border-0 rounded-md focus-within:outline-none ">
-              <ReactTags
-                tags={tags}
-                separators={[SEPARATORS.ENTER, SEPARATORS.COMMA]}
-                handleDelete={handleDelete}
-                handleAddition={handleAddition}
-                handleTagClick={handleTagClick}
-                onTagUpdate={onTagUpdate}
-                inputFieldPosition="bottom"
-                editable
-                dragDrop={false}
-                maxTags={4}
-                placeholder="Type here and press Enter..."
-                classNames={{
-                  tags: "flex flex-row flex-wrap gap-3 items-center w-auto",
-                  tagInput: "flex-1 min-w-[120px]",
-                  tagInputField:
-                    "px-2 py-1 bg-gray-100 border-none outline-none text-sm cursor-default",
-                  tag: "bg-primary text-white px-3 py-1 ml-2 rounded-md text-sm flex flex-row items-center gap-2 mb-2 w-auto inline-flex",
-                  remove: "text-white hover:text-red-200 cursor-pointer ml-1",
-                }}
-              />
-            </div>
+            <ReactTags
+              tags={tags}
+              separators={[SEPARATORS.ENTER, SEPARATORS.COMMA]}
+              handleDelete={handleDelete}
+              handleAddition={handleAddition}
+              inputFieldPosition="bottom"
+              placeholder="Type here and press Enter..."
+              classNames={{
+                tags: "flex flex-wrap gap-3 mb-2",
+                tagInput: "flex-1",
+                tagInputField:
+                  "w-full px-2 py-1 bg-gray-100 border-none outline-none text-sm cursor-default",
+                tag: "bg-primary text-white px-3 py-1 rounded-md text-sm flex items-center gap-2 mb-2",
+                remove: "text-white hover:text-red-200 cursor-pointer ml-1",
+              }}
+            />
           </div>
-
-          {/* Nutrition Facts and Recipe Facts */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* File Upload */}
-            <div className="row-span-2">
-              <label className="block font-medium text-gray-700 mb-2">
-                Upload photo
-              </label>
-              <FileUpload
-                onFileSelect={handleFileUpload}
-                accept="image/*"
-                maxSize={5 * 1024 * 1024} // 5MB
-                label="Drop your recipe image here or"
-                subLabel="Click to upload"
-                fileTypes="JPG, PNG, SVG, GIF"
-                reset={resetFileUpload}
-                defaultImage={null}
-              />
-            </div>
-            {/* Benefits */}
+            <ImageUpload
+              imagePreview={imagePreview}
+              handleDragOver={handleDragOver}
+              handleDrop={handleDrop}
+              handleFileInputChange={handleFileInputChange}
+              setImageFile={setImageFile}
+              setImagePreview={setImagePreview}
+            />
             <div>
               <label className="block font-medium text-gray-700 mb-2">
-                Benefits
+                Benefits (comma separated)
               </label>
               <textarea
-                name="ingredients"
-                placeholder="Type here"
-                value={formData.ingredients}
+                name="benefits"
+                placeholder="Benefit 1, Benefit 2, ..."
+                value={formData.benefits}
                 onChange={handleInputChange}
                 rows={8}
                 className="w-full px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
               />
             </div>
           </div>
-
-          {/* Upload Button */}
           <div className="flex justify-center pt-6">
             <button
               type="submit"
               className="px-8 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
+              disabled={isLoading}
             >
-              Upload
+              {isLoading ? (
+                <>
+                  <CgSpinner className="inline animate-spin mr-2" />{" "}
+                  Uploading...
+                </>
+              ) : (
+                "Upload"
+              )}
             </button>
           </div>
         </form>

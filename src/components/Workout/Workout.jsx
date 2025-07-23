@@ -7,7 +7,10 @@ import { Link } from "react-router-dom";
 import { Plus, SquarePen } from "lucide-react";
 import DeleteConfirmationModal from "../Shared/DeleteConfirmationModal";
 import { RiDeleteBin6Line } from "react-icons/ri";
-import { useAllWorkoutQuery } from "../../Api/authApi";
+import {
+  useAllWorkoutQuery,
+  useDeleteWorkoutMutation,
+} from "../../Api/authApi";
 
 export default function Workout() {
   const [query, setQuery] = useState("");
@@ -27,11 +30,19 @@ export default function Workout() {
   const workouts = data?.results || [];
   const totalItems = data?.count || 0;
 
+  const [deleteWorkout, { isLoading: isDeleting }] = useDeleteWorkoutMutation();
+
   const handleDeleteWorkout = async () => {
-    // Implement delete logic with API if needed
-    toast.success("Workout deleted successfully");
-    setOpenDltModal(false);
-    setSelectedWorkoutId(null);
+    if (!selectedWorkoutId) return;
+    try {
+      await deleteWorkout(selectedWorkoutId).unwrap();
+      toast.success("Workout deleted successfully");
+    } catch (err) {
+      toast.error("Failed to delete workout");
+    } finally {
+      setOpenDltModal(false);
+      setSelectedWorkoutId(null);
+    }
   };
 
   return (
@@ -178,6 +189,7 @@ export default function Workout() {
               isOpen={openDltModal}
               onClose={() => setOpenDltModal(false)}
               onConfirm={handleDeleteWorkout}
+              isLoading={isDeleting}
             />
           </table>
         </div>

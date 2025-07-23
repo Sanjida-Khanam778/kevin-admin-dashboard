@@ -60,6 +60,32 @@ export const authApi = api.injectEndpoints({
       query: (id) => `/adminapi/workouts/${id}/`,
       providesTags: ["users"],
     }),
+
+    createWorkout: builder.mutation({
+      query: (data) => ({
+        url: "/adminapi/workouts/",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["users"],
+    }),
+
+    updateWorkout: builder.mutation({
+      query: ({ id, data }) => ({
+        url: `/adminapi/workouts/${id}/`,
+        method: "PATCH",
+        body: data,
+      }),
+      invalidatesTags: ["users"],
+    }),
+    
+    deleteWorkout: builder.mutation({
+      query: (id) => ({
+        url: `/adminapi/workouts/${id}/`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["users"],
+    }),
   }),
 });
 
@@ -72,4 +98,7 @@ export const {
   useDeleteRecipeMutation,
   useAllWorkoutQuery,
   useGetWorkoutQuery,
+  useCreateWorkoutMutation,
+  useUpdateWorkoutMutation,
+  useDeleteWorkoutMutation,
 } = authApi;
