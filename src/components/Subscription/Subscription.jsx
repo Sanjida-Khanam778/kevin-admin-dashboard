@@ -7,6 +7,7 @@ import {
 } from "../../Api/authApi";
 import { Pencil, Trash } from "lucide-react";
 import toast from "react-hot-toast";
+import DeleteConfirmationModal from "../Shared/DeleteConfirmationModal";
 // Remove static data array
 // const data = [...];
 
@@ -16,6 +17,9 @@ export default function Subscription() {
   const [packages, setPackages] = useState([]);
   const navigate = useNavigate();
   const [deletePackage] = useDeletePackageMutation();
+  const [openDltModal, setOpenDltModal] = useState(false);
+  const [selectedDeleteId, setSelectedDeleteId] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Fetch packages from API
   const { data, isLoading: apiLoading, refetch } = useAllPackagesQuery();
@@ -72,14 +76,30 @@ export default function Subscription() {
   };
 
   const handleDelete = async (id) => {
+    setIsDeleting(true);
     try {
       await deletePackage(id).unwrap();
       toast.success("Package deleted successfully!");
+      setOpenDltModal(false);
+      setSelectedDeleteId(null);
       refetch();
     } catch (error) {
       toast.error(
         error?.data?.message || error.error || "Failed to delete package"
       );
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleDeleteModalOpen = (id) => {
+    setSelectedDeleteId(id);
+    setOpenDltModal(true);
+  };
+
+  const handleDeleteModalConfirm = () => {
+    if (selectedDeleteId) {
+      handleDelete(selectedDeleteId);
     }
   };
 
@@ -203,12 +223,18 @@ export default function Subscription() {
                       />
                       <Trash
                         className="w-5 h-6 text-red-500 cursor-pointer"
-                        onClick={() => handleDelete(pkg.id)}
+                        onClick={() => handleDeleteModalOpen(pkg.id)}
                       />
                     </td>
                   </tr>
                 ))}
           </tbody>
+          <DeleteConfirmationModal
+            isOpen={openDltModal}
+            onClose={() => setOpenDltModal(false)}
+            onConfirm={handleDeleteModalConfirm}
+            isLoading={isDeleting}
+          />
         </table>
       </div>
     </div>
