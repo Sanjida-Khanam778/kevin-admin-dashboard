@@ -15,6 +15,7 @@ import WorkoutUploadForm from "../components/Workout/WorkoutUploadForm";
 import WorkoutDetails from "../components/WorkoutDetails/WorkoutDetails";
 import WorkoutUpdate from "../components/Workout/WorkoutUpdate";
 import { PrivateRoute } from "./PrivetRoute";
+import AddPackage from "../components/Subscription/AddPackage";
 
 export const router = createBrowserRouter([
   {
@@ -69,6 +70,10 @@ export const router = createBrowserRouter([
       {
         path: "/subscription",
         element: <Subscription />,
+      },
+      {
+        path: "/subscription/add",
+        element: <AddPackage />,
       },
       {
         path: "/settings",
