@@ -16,11 +16,16 @@ import WorkoutDetails from "../components/WorkoutDetails/WorkoutDetails";
 import WorkoutUpdate from "../components/Workout/WorkoutUpdate";
 import { PrivateRoute } from "./PrivetRoute";
 import AddPackage from "../components/Subscription/AddPackage";
+import EditPackage from "../components/Subscription/EditPackage";
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <PrivateRoute><Dashboard /></PrivateRoute>,
+    element: (
+      <PrivateRoute>
+        <Dashboard />
+      </PrivateRoute>
+    ),
     errorElement: <h1>404</h1>,
     children: [
       {
@@ -74,6 +79,10 @@ export const router = createBrowserRouter([
       {
         path: "/subscription/add",
         element: <AddPackage />,
+      },
+      {
+        path: "/subscription/edit/:id",
+        element: <EditPackage />,
       },
       {
         path: "/settings",

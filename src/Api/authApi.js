@@ -144,6 +144,26 @@ export const authApi = api.injectEndpoints({
       query: () => "/adminapi/packages/",
       providesTags: ["packages"],
     }),
+
+    getPackage: builder.query({
+      query: (id) => `/adminapi/packages/${id}/`,
+      providesTags: ["packages"],
+    }),
+    updatePackage: builder.mutation({
+      query: ({ id, data }) => ({
+        url: `/adminapi/packages/${id}/`,
+        method: "PUT",
+        body: data,
+      }),
+      invalidatesTags: ["packages"],
+    }),
+    deletePackage: builder.mutation({
+      query: (id) => ({
+        url: `/adminapi/packages/${id}/`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["packages"],
+    }),
   }),
 });
 
@@ -167,4 +187,7 @@ export const {
   useUpdateTermsMutation,
   useAddPackageMutation,
   useAllPackagesQuery,
+  useGetPackageQuery,
+  useUpdatePackageMutation,
+  useDeletePackageMutation,
 } = authApi;

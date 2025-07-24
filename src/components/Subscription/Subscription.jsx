@@ -1,8 +1,12 @@
 import { useState, useEffect } from "react";
 import { GoPencil } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
-import { useAllPackagesQuery } from "../../Api/authApi";
+import {
+  useAllPackagesQuery,
+  useDeletePackageMutation,
+} from "../../Api/authApi";
 import { Pencil, Trash } from "lucide-react";
+import toast from "react-hot-toast";
 // Remove static data array
 // const data = [...];
 
@@ -11,6 +15,7 @@ export default function Subscription() {
   const [editIndex, setEditIndex] = useState(null);
   const [packages, setPackages] = useState([]);
   const navigate = useNavigate();
+  const [deletePackage] = useDeletePackageMutation();
 
   // Fetch packages from API
   const { data, isLoading: apiLoading, refetch } = useAllPackagesQuery();
@@ -66,6 +71,22 @@ export default function Subscription() {
       });
   };
 
+  const handleDelete = async (id) => {
+    try {
+      await deletePackage(id).unwrap();
+      toast.success("Package deleted successfully!");
+      refetch();
+    } catch (error) {
+      toast.error(
+        error?.data?.message || error.error || "Failed to delete package"
+      );
+    }
+  };
+
+  const handleEditPage = (id) => {
+    navigate(`/subscription/edit/${id}`);
+  };
+
   const getStatusColor = (package_status) => {
     return package_status === "Active" ? " text-green-400" : "text-red-500";
   };
@@ -119,7 +140,7 @@ export default function Subscription() {
                         pkg.billing_interval
                       )}`}
                     >
-                      {pkg.billing_interval === "months"
+                      {pkg.billing_interval === "month"
                         ? "Monthly"
                         : pkg.billing_interval === "6 months"
                         ? "6 Monthly"
@@ -176,8 +197,14 @@ export default function Subscription() {
                       </div>
                     </td>
                     <td className="py-4 flex gap-4 justify-center items-center text-center">
-                      <Pencil className="w-5 h-5 text-primary cursor-pointer" />
-                      <Trash className="w-5 h-6 text-red-500 cursor-pointer" />
+                      <Pencil
+                        className="w-5 h-5 text-primary cursor-pointer"
+                        onClick={() => handleEditPage(pkg.id)}
+                      />
+                      <Trash
+                        className="w-5 h-6 text-red-500 cursor-pointer"
+                        onClick={() => handleDelete(pkg.id)}
+                      />
                     </td>
                   </tr>
                 ))}
