@@ -19,6 +19,7 @@ export default function EditPackage() {
   const [amount, setAmount] = useState("");
   const [billingInterval, setBillingInterval] = useState("month");
   const [status, setStatus] = useState("active");
+  const [intervalCount, setIntervalCount] = useState(1);
 
   useEffect(() => {
     if (data) {
@@ -28,6 +29,9 @@ export default function EditPackage() {
       setAmount(data.amount !== undefined ? data.amount : "");
       setBillingInterval(data.billing_interval || "month");
       setStatus(data.status || "active");
+      setIntervalCount(
+        data.interval_count !== undefined ? data.interval_count : 1
+      );
     }
   }, [data]);
 
@@ -52,11 +56,12 @@ export default function EditPackage() {
           recurring,
           amount: parseFloat(amount),
           billing_interval: billingInterval,
-          interval_count: 1,
+          interval_count: parseInt(intervalCount),
           status: status,
         },
       }).unwrap();
       toast.success("Package updated successfully!");
+      setIntervalCount(1);
       navigate("/subscription");
     } catch (error) {
       toast.error(
@@ -153,9 +158,24 @@ export default function EditPackage() {
               required
             >
               <option value="month">Monthly</option>
-              <option value="6 months">6 Monthly</option>
+              {/* <option value="6 months">6 Monthly</option> */}
               <option value="year">Yearly</option>
             </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Interval Count*
+            </label>
+            <input
+              type="number"
+              min="1"
+              step="1"
+              value={intervalCount}
+              onChange={(e) => setIntervalCount(e.target.value)}
+              placeholder="e.g. 1"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              required
+            />
           </div>
         </div>
         <div className="flex gap-4 pt-6">

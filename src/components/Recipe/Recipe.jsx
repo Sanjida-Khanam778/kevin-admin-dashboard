@@ -63,7 +63,7 @@ export default function Recipe() {
               onChange={(e) => setQuery(e.target.value)}
             />
             {/* filter */}
-            <div className="relative">
+            {/* <div className="relative">
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
@@ -89,7 +89,7 @@ export default function Recipe() {
                   />
                 </svg>
               </div>
-            </div>
+            </div> */}
             {/* add recipe */}
             <Link to="/recipe/upload">
               <button className="bg-primary text-white px-4 py-2 rounded-md">

@@ -139,7 +139,7 @@ export default function Subscription() {
               <th className="pb-3 font-medium text-center">Package ID</th>
               <th className="pb-3 font-medium text-center">Package Amount</th>
               <th className="pb-3 font-medium text-center">Type</th>
-              <th className="pb-3 font-medium text-center">Status</th>
+              <th className="pb-3 font-medium text-center">Billing Interval</th>
               <th className="pb-3 font-medium text-center">Action</th>
             </tr>
           </thead>
@@ -166,7 +166,7 @@ export default function Subscription() {
                         ? "6 Monthly"
                         : "Yearly"}
                     </td>
-                    <td className="py-4 text-center ">
+                    {/* <td className="py-4 text-center ">
                       <div className="relative inline-block">
                         <select
                           name="status"
@@ -193,7 +193,7 @@ export default function Subscription() {
                         </select>
 
                         {/* Custom dropdown arrow */}
-                        {pkg.package_type !== "Free" && (
+                        {/* {pkg.package_type !== "Free" && (
                           <div
                             className={`pointer-events-none absolute inset-y-2 right-2 flex items-center text-gray-700 ${getStatusColor(
                               pkg.package_status
@@ -215,7 +215,8 @@ export default function Subscription() {
                           </div>
                         )}
                       </div>
-                    </td>
+                    </td>  */}
+                    <td className="text-center">{pkg.interval_count}</td>
                     <td className="py-4 flex gap-4 justify-center items-center text-center">
                       <Pencil
                         className="w-5 h-5 text-primary cursor-pointer"

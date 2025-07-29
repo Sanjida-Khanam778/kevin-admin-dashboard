@@ -11,6 +11,7 @@ export default function AddPackage() {
   const [amount, setAmount] = useState("");
   const [billingInterval, setBillingInterval] = useState("month");
   const [status, setStatus] = useState("active");
+  const [intervalCount, setIntervalCount] = useState(1);
   const [addPackage, { isLoading }] = useAddPackageMutation();
 
   const handleSubmit = async (e) => {
@@ -32,7 +33,7 @@ export default function AddPackage() {
         recurring: true,
         amount: parseFloat(amount),
         billing_interval: billingInterval,
-        interval_count: 1,
+        interval_count: parseInt(intervalCount),
         status: status,
       }).unwrap();
       toast.success("Package Added Successfully!");
@@ -41,6 +42,7 @@ export default function AddPackage() {
       setAmount("");
       setBillingInterval("month");
       setStatus("active");
+      setIntervalCount(1);
       navigate("/subscription");
     } catch (error) {
       toast.error(
@@ -124,6 +126,21 @@ export default function AddPackage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
+              Interval Count*
+            </label>
+            <input
+              type="number"
+              min="1"
+              step="1"
+              value={intervalCount}
+              onChange={(e) => setIntervalCount(e.target.value)}
+              placeholder="e.g. 1"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Billing Interval *
             </label>
             <select
@@ -133,7 +150,7 @@ export default function AddPackage() {
               required
             >
               <option value="month">Monthly</option>
-              <option value="6 months">6 Monthly</option>
+              {/* <option value="6 months">6 Monthly</option> */}
               <option value="year">Yearly</option>
             </select>
           </div>

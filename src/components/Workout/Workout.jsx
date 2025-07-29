@@ -65,7 +65,7 @@ export default function Workout() {
               }}
             />
             {/* filter */}
-            <div className="relative">
+            {/* <div className="relative">
               <select
                 value={sortBy}
                 onChange={(e) => {
@@ -98,7 +98,7 @@ export default function Workout() {
                   />
                 </svg>
               </div>
-            </div>
+            </div> */}
             {/* add workout */}
             <Link to="/workout/upload">
               <button className="bg-primary text-white px-4 py-2 rounded-md">
