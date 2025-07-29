@@ -1,12 +1,4 @@
-import React from "react";
-
-export default function Activity() {
-  const activityData = [
-    { label: "Meal logs", value: "60/66" },
-    { label: "Workout logs", value: "12/20" },
-    { label: "Check In", value: "4/4" },
-  ];
-
+export default function Activity({ userStats }) {
   const ProgressBar = ({ percentage, color = "bg-gray-800" }) => (
     <div className="w-full bg-gray-200 rounded-full h-2">
       <div
@@ -14,12 +6,55 @@ export default function Activity() {
         style={{ width: `${percentage}%` }}
       ></div>
     </div>
-  );
+  )
+
+  // Transform userStats to activity data format
+  const getActivityData = () => {
+    if (!userStats) {
+      return [
+        { label: "Meal logs", value: "0/0", percentage: 0 },
+        { label: "Workout logs", value: "0/0", percentage: 0 },
+        { label: "Check In", value: "0/0", percentage: 0 },
+      ]
+    }
+
+    const mealPercentage =
+      userStats.total_meal_entries > 0
+        ? Math.round((userStats.total_completed_meal_entries / userStats.total_meal_entries) * 100)
+        : 0
+
+    const workoutPercentage =
+      userStats.total_workout_entries > 0
+        ? Math.round((userStats.total_completed_workout_entries / userStats.total_workout_entries) * 100)
+        : 0
+
+    // For check-in, we'll use the progress percentage as a proxy
+    const checkInPercentage = userStats.progress || 0
+
+    return [
+      {
+        label: "Meal logs",
+        value: `${userStats.total_completed_meal_entries}/${userStats.total_meal_entries}`,
+        percentage: mealPercentage,
+      },
+      {
+        label: "Workout logs",
+        value: `${userStats.total_completed_workout_entries}/${userStats.total_workout_entries}`,
+        percentage: workoutPercentage,
+      },
+      {
+        label: "Check In",
+        value: `${userStats.progress}%`,
+        percentage: checkInPercentage,
+      },
+    ]
+  }
+
+  const activityData = getActivityData()
+
   return (
     <div className="border border-outline rounded-xl p-6">
-      <h3 className="text-sm font-medium text-gray-700 mb-4">
-        15 Days Activity
-      </h3>
+      <h3 className="text-sm font-medium text-gray-700 mb-4">15 Days Activity</h3>
       <div className="space-y-4">
         {activityData?.map((item, index) => (
           <div key={index} className="flex items-center justify-between">
@@ -27,24 +62,17 @@ export default function Activity() {
             <div className="flex items-center space-x-3 w-full">
               <div className="w-full">
                 <ProgressBar
-                  percentage={
-                    item.value === "60/66"
-                      ? 91
-                      : item.value === "12/20"
-                      ? 60
-                      : item.value === "4/4"
-                      ? 100
-                      : 0
+                  percentage={item.percentage}
+                  color={
+                    item.percentage >= 80 ? "bg-green-600" : item.percentage >= 50 ? "bg-yellow-500" : "bg-red-500"
                   }
                 />
               </div>
-              <span className="text-sm font-medium text-gray-900 w-12">
-                {item.value}
-              </span>
+              <span className="text-sm font-medium text-gray-900 w-12">{item.value}</span>
             </div>
           </div>
         ))}
       </div>
     </div>
-  );
+  )
 }
