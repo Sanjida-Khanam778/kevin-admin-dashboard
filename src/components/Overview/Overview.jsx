@@ -1,72 +1,69 @@
-import { useState } from "react";
-import { Line, LineChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
-import Revenue from "../Charts/Revenue";
+import { useState } from "react"
+import { Line, LineChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
+import { useGetDashboardStatsQuery, useGetUserMonthlyStatsQuery } from "../../Api/dashboardApi"
+import Revenue from "../Charts/Revenue"
 
 const Overview = () => {
-  const [sortBy, setSortBy] = useState("yearly");
-  console.log(sortBy);
+  const [sortBy, setSortBy] = useState("yearly")
 
-  const chartData = [
-    { month: "Jan", thisYear: 15000, lastYear: 12000 },
-    { month: "Feb", thisYear: 8000, lastYear: 10000 },
-    { month: "Mar", thisYear: 12000, lastYear: 15000 },
-    { month: "Apr", thisYear: 25000, lastYear: 16000 },
-    { month: "May", thisYear: 28000, lastYear: 18000 },
-    { month: "Jun", thisYear: 22000, lastYear: 25000 },
-    { month: "Jul", thisYear: 25000, lastYear: 20000 },
-    { month: "Aug", thisYear: 15000, lastYear: 12000 },
-    { month: "Sep", thisYear: 8000, lastYear: 10000 },
-    { month: "Oct", thisYear: 12000, lastYear: 15000 },
-    { month: "Nov", thisYear: 25000, lastYear: 16000 },
-    { month: "Dec", thisYear: 28000, lastYear: 18000 },
-  ];
-  const monthData = [
-    { Day: 1, thisYear: 15000, lastYear: 12000 },
-    { Day: 2, thisYear: 8000, lastYear: 10000 },
-    { Day: 3, thisYear: 12000, lastYear: 15000 },
-    { Day: 4, thisYear: 25000, lastYear: 16000 },
-    { Day: 5, thisYear: 28000, lastYear: 18000 },
-    { Day: 6, thisYear: 22000, lastYear: 25000 },
-    { Day: 7, thisYear: 25000, lastYear: 20000 },
-    { Day: 8, thisYear: 15000, lastYear: 12000 },
-    { Day: 9, thisYear: 8000, lastYear: 10000 },
-    { Day: 10, thisYear: 12000, lastYear: 15000 },
-    { Day: 11, thisYear: 25000, lastYear: 16000 },
-    { Day: 12, thisYear: 28000, lastYear: 18000 },
-    { Day: 13, thisYear: 12000, lastYear: 15000 },
-    { Day: 14, thisYear: 25000, lastYear: 16000 },
-    { Day: 15, thisYear: 28000, lastYear: 18000 },
-    { Day: 16, thisYear: 22000, lastYear: 25000 },
-    { Day: 17, thisYear: 25000, lastYear: 20000 },
-    { Day: 18, thisYear: 15000, lastYear: 12000 },
-    { Day: 19, thisYear: 8000, lastYear: 10000 },
-    { Day: 20, thisYear: 12000, lastYear: 15000 },
-    { Day: 21, thisYear: 25000, lastYear: 16000 },
-    { Day: 22, thisYear: 28000, lastYear: 18000 },
-    { Day: 23, thisYear: 12000, lastYear: 15000 },
-    { Day: 24, thisYear: 25000, lastYear: 16000 },
-    { Day: 25, thisYear: 28000, lastYear: 18000 },
-    { Day: 26, thisYear: 22000, lastYear: 25000 },
-    { Day: 27, thisYear: 25000, lastYear: 20000 },
-    { Day: 28, thisYear: 15000, lastYear: 12000 },
-    { Day: 29, thisYear: 8000, lastYear: 10000 },
-    { Day: 30, thisYear: 12000, lastYear: 15000 },
-  ];
+  // Fetch data from APIs
+  const { data: dashboardStats, isLoading: dashboardLoading } = useGetDashboardStatsQuery()
+  const { data: userStats, isLoading: userStatsLoading } = useGetUserMonthlyStatsQuery()
+
+  // Transform user stats data for charts
+  const transformUserData = () => {
+    if (!userStats) return []
+
+    if (sortBy === "yearly") {
+      // Transform yearly data
+      return userStats.this_year.map((item, index) => {
+        const lastYearItem = userStats.last_year[index] || { total_users: 0 }
+        return {
+          month: item.month.split("-")[0], // Extract month name
+          thisYear: item.total_users,
+          lastYear: lastYearItem.total_users,
+        }
+      })
+    } else {
+      // Transform monthly (daily) data
+      return userStats.current_month.map((item, index) => {
+        const day = item.day.split("-")[0] // Extract day
+        return {
+          Day: Number.parseInt(day),
+          thisYear: item.new_users,
+          lastYear: 0, // No last year daily data available
+        }
+      })
+    }
+  }
+
+  const chartData = transformUserData()
+
+  // Loading state
+  if (dashboardLoading || userStatsLoading) {
+    return (
+      <div className="p-6 h-[90vh] overflow-y-scroll">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg text-gray-500">Loading...</div>
+        </div>
+      </div>
+    )
+  }
+
   const metrics = [
     {
-      title: "Total Clients",
-      value: "726",
+      title: "Total Users",
+      value: dashboardStats?.stats?.total_users || 0,
     },
-  
     {
       title: "Total Revenue",
-      value: "$56k",
+      value: `$${dashboardStats?.stats?.total_revenue || 0}`,
     },
     {
-      title: "Total Subscribers",
-      value: "726",
+      title: "Active Subscriptions",
+      value: dashboardStats?.stats?.total_active_subscriptions || 0,
     },
-  ];
+  ]
 
   return (
     <div className="p-6 h-[90vh] overflow-y-scroll">
@@ -74,44 +71,32 @@ const Overview = () => {
         {metrics.map((metric, idx) => (
           <div
             key={idx}
-            className="bg-white rounded-xl p-6 shadow-sm border border-outline hover:shadow-md transition-shadow duration-200"
+            className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200"
           >
             <div className="space-y-3">
-              <h3 className="text-xl font-medium text-neutral/80 tracking-wide">
-                {metric.title}
-              </h3>
-
-              <div className="text-3xl font-bold text-dark">{metric.value}</div>
-
-             
+              <h3 className="text-xl font-medium text-gray-600 tracking-wide">{metric.title}</h3>
+              <div className="text-3xl font-bold text-gray-900">{metric.value}</div>
             </div>
           </div>
         ))}
       </div>
+
       <div className="max-w-6xl mx-auto mt-10">
-        <div className="bg-background rounded-xl p-6 mb-10">
+        <div className="bg-white rounded-xl p-6 mb-10 shadow-sm border border-gray-200">
           {/* Chart Header */}
           <div className="flex justify-between items-start mb-8">
             <div className="space-y-4">
               <h2 className="text-lg font-semibold text-gray-900">
-                Total Users
+                {sortBy === "yearly" ? "Total Users" : "New Users"}
               </h2>
               <div className="flex items-center space-x-8">
                 <div className="flex items-center space-x-2">
                   <div className="w-3 h-3 rounded-full bg-gray-800"></div>
-                  <span className="text-sm font-medium text-gray-700">
-                    This year
-                  </span>
+                  <span className="text-sm font-medium text-gray-700">This year</span>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 rounded-full bg-gray-300"></div>
-                  <span className="text-sm font-medium text-gray-700">
-                    Last year
-                  </span>
-                </div>
+               
               </div>
             </div>
-
             <div className="flex items-center space-x-2">
               <span className="text-sm text-gray-500">Sort by</span>
               <select
@@ -128,10 +113,7 @@ const Overview = () => {
           {/* Chart */}
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart
-                data={sortBy === "yearly" ? chartData : monthData}
-                margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
-              >
+              <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
                 <XAxis
                   dataKey={sortBy === "yearly" ? "month" : "Day"}
                   axisLine={false}
@@ -143,18 +125,18 @@ const Overview = () => {
                   axisLine={false}
                   tickLine={false}
                   tick={{ fontSize: 12, fill: "#9CA3AF" }}
-                  tickFormatter={(value) => `${value / 1000}K`}
-                  domain={[0, 30000]}
-                  ticks={[0, 10000, 20000, 30000]}
+                  tickFormatter={(value) => `${value}`}
                 />
-                <Line
-                  type="monotone"
-                  dataKey="lastYear"
-                  stroke="#D1D5DB"
-                  strokeWidth={2}
-                  dot={false}
-                  strokeDasharray="5 5"
-                />
+                {sortBy === "yearly" && (
+                  <Line
+                    type="monotone"
+                    dataKey="lastYear"
+                    stroke="#D1D5DB"
+                    strokeWidth={2}
+                    dot={false}
+                    strokeDasharray="5 5"
+                  />
+                )}
                 <Line
                   type="monotone"
                   dataKey="thisYear"
@@ -167,13 +149,13 @@ const Overview = () => {
               </LineChart>
             </ResponsiveContainer>
           </div>
-
         </div>
-          {/* revenue */}
-          <Revenue />
+
+        {/* Revenue Component */}
+        <Revenue />
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Overview;
+export default Overview
