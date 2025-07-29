@@ -41,12 +41,7 @@ export default function Activity({ userStats }) {
         label: "Workout logs",
         value: `${userStats.total_completed_workout_entries}/${userStats.total_workout_entries}`,
         percentage: workoutPercentage,
-      },
-      {
-        label: "Check In",
-        value: `${userStats.progress}%`,
-        percentage: checkInPercentage,
-      },
+      }
     ]
   }
 
