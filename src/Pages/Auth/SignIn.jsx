@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { use, useState } from "react";
 import loginImg from "../../assets/images/login.png";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
@@ -8,8 +8,8 @@ import { setCredentials } from "../../features/authSlice";
 import toast from "react-hot-toast";
 
 const SignIn = () => {
+  const {isLoading} = useLoginMutation()
   const credentials = useSelector((state) => state.auth);
-  console.log(credentials);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -140,7 +140,14 @@ const SignIn = () => {
                 type="submit"
                 className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-neutral focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-150 ease-in-out"
               >
-                Login
+                {isLoading ? (
+                  <>
+                    <CgSpinner className="animate-spin" />
+                    <span>Loading...</span>
+                  </>
+                ) : (
+                  "Login"
+                )}
               </button>
             </div>
           </form>

@@ -24,19 +24,43 @@ export default function Revenue() {
     if (!revenueStats) return [];
 
     if (sortBy === "yearly") {
-      // Transform yearly data - combine this year and last year
-      return revenueStats.this_year.map((item, index) => {
-        const lastYearItem = revenueStats.last_year[index] || {
-          total_revenue: 0,
-        };
-        const monthName = item.month.split("-")[0]; // Extract month name
-        return {
-          month: monthName,
-          thisYear: item.total_revenue,
-          lastYear: lastYearItem.total_revenue,
-          revenue: item.total_revenue, // For area chart
-        };
+      // Create 12 months of data
+      const months = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ];
+
+      // Create a map of existing data from API
+      const thisYearData = {};
+      const lastYearData = {};
+
+      revenueStats.this_year?.forEach((item) => {
+        const monthName = item.month.split("-")[0];
+        thisYearData[monthName] = item.total_revenue;
       });
+
+      revenueStats.last_year?.forEach((item) => {
+        const monthName = item.month.split("-")[0];
+        lastYearData[monthName] = item.total_revenue;
+      });
+
+      // Generate 12 months of data
+      return months.map((month) => ({
+        month: month,
+        thisYear: thisYearData[month] || 0,
+        lastYear: lastYearData[month] || 0,
+        revenue: thisYearData[month] || 0, // For area chart
+      }));
     } else {
       // Transform monthly (daily) data
       return revenueStats.current_month.map((item) => {
