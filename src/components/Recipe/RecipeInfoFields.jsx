@@ -19,6 +19,7 @@ const RecipeInfoFields = ({
   );
   const [newTimeInput, setNewTimeInput] = useState("");
   const [showNewTimeInput, setShowNewTimeInput] = useState(false);
+  const [customMealTypes, setCustomMealTypes] = useState([]);
 
   // Update selectedTimes when formData.forTime changes
   useEffect(() => {
@@ -32,7 +33,15 @@ const RecipeInfoFields = ({
     }
   }, [formData.forTime]);
 
-  const mealTypes = [
+  // Load custom meal types from localStorage on component mount
+  useEffect(() => {
+    const savedCustomTypes = localStorage.getItem("customMealTypes");
+    if (savedCustomTypes) {
+      setCustomMealTypes(JSON.parse(savedCustomTypes));
+    }
+  }, []);
+
+  const baseMealTypes = [
     "Breakfast",
     "Snack",
     "Snack 1",
@@ -43,6 +52,9 @@ const RecipeInfoFields = ({
     "Post-Dinner",
     "Late Snack",
   ];
+
+  // Combine base meal types with custom ones
+  const mealTypes = [...baseMealTypes, ...customMealTypes];
 
   const handleTimeSelection = (time) => {
     let updatedTimes;
@@ -60,10 +72,22 @@ const RecipeInfoFields = ({
 
   const handleAddNewTime = () => {
     if (newTimeInput.trim() && !mealTypes.includes(newTimeInput.trim())) {
+      // Add to custom meal types
+      const updatedCustomTypes = [...customMealTypes, newTimeInput.trim()];
+      setCustomMealTypes(updatedCustomTypes);
+
+      // Save to localStorage
+      localStorage.setItem(
+        "customMealTypes",
+        JSON.stringify(updatedCustomTypes)
+      );
+
+      // Add to selected times
       const updatedTimes = [...selectedTimes, newTimeInput.trim()];
       setSelectedTimes(updatedTimes);
       setNewTimeInput("");
       setShowNewTimeInput(false);
+
       // Update formData
       handleInputChange({
         target: { name: "forTime", value: updatedTimes.join(", ") },
