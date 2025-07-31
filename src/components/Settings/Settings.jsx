@@ -144,7 +144,7 @@ export default function TextEditor() {
   };
 
   return (
-    <div className="h-[92vh] overflow-y-scroll bg-accent">
+    <div className="h-[90vh] overflow-y-scroll bg-accent">
       <div className="w-11/12 h-[90vh] mx-auto mb-6">
         {/* Tabs */}
         <div className="flex mt-2">
@@ -254,7 +254,7 @@ export default function TextEditor() {
         {/* Save button */}
         <div className="bg-gray-50">
           <button
-            className="w-full bg-primary  text-white font-medium py-2 px-4 rounded"
+            className="w-full bg-primary mb-6 text-white font-medium py-2 px-4 rounded"
             onClick={saveChanges}
             disabled={
               isPrivacyLoading ||

@@ -46,7 +46,7 @@ export default function AddPackage() {
       navigate("/subscription");
     } catch (error) {
       toast.error(
-        error?.data?.message || error.error || "Failed to add package"
+        error?.data?.message || "Failed to add package"
       );
     }
   };
