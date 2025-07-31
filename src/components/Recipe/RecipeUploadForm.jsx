@@ -88,11 +88,20 @@ const RecipeUploadForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Ensure forTime is never empty
+    if (!formData.forTime || formData.forTime.trim() === "") {
+      setFormData((prev) => ({
+        ...prev,
+        forTime: "Breakfast",
+      }));
+    }
+
     try {
       const form = new FormData();
       form.append("recipe_name", formData.recipeName);
       form.append("recipe_type", formData.recipeType);
-      form.append("for_time", formData.forTime);
+      form.append("for_time", formData.forTime || "Breakfast");
       form.append("tag", tags.map((t) => t.text).join(","));
       form.append("calories", formData.calories);
       form.append("carbs", formData.carbs);
@@ -161,15 +170,14 @@ const RecipeUploadForm = () => {
               handleTagClick={handleTagClick}
               onTagUpdate={onTagUpdate}
             />
-              <ImageUpload
-                imagePreview={imagePreview}
-                handleDragOver={handleDragOver}
-                handleDrop={handleDrop}
-                handleFileInputChange={handleFileInputChange}
-                setImageFile={setImageFile}
-                setImagePreview={setImagePreview}
-              />
-        
+            <ImageUpload
+              imagePreview={imagePreview}
+              handleDragOver={handleDragOver}
+              handleDrop={handleDrop}
+              handleFileInputChange={handleFileInputChange}
+              setImageFile={setImageFile}
+              setImagePreview={setImagePreview}
+            />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <NutritionFacts
@@ -199,7 +207,8 @@ const RecipeUploadForm = () => {
             >
               {isLoading ? (
                 <div className="flex items-center justify-center gap-4">
-                  <CgSpinner className="inline animate-spin mr-2" /><span> Uploading</span>
+                  <CgSpinner className="inline animate-spin mr-2" />
+                  <span> Uploading</span>
                 </div>
               ) : (
                 "Upload"
