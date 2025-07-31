@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { WithContext as ReactTags, SEPARATORS } from "react-tag-input";
 import { Plus } from "lucide-react";
 
@@ -15,10 +15,22 @@ const RecipeInfoFields = ({
   const [selectedTimes, setSelectedTimes] = useState(
     formData.forTime && formData.forTime !== ""
       ? formData.forTime.split(", ").filter((time) => time.trim() !== "")
-      : ["Breakfast"]
+      : []
   );
   const [newTimeInput, setNewTimeInput] = useState("");
   const [showNewTimeInput, setShowNewTimeInput] = useState(false);
+
+  // Update selectedTimes when formData.forTime changes
+  useEffect(() => {
+    if (formData.forTime && formData.forTime !== "") {
+      const times = formData.forTime
+        .split(", ")
+        .filter((time) => time.trim() !== "");
+      setSelectedTimes(times);
+    } else {
+      setSelectedTimes([]);
+    }
+  }, [formData.forTime]);
 
   const mealTypes = [
     "Breakfast",
@@ -38,11 +50,6 @@ const RecipeInfoFields = ({
       updatedTimes = selectedTimes.filter((t) => t !== time);
     } else {
       updatedTimes = [...selectedTimes, time];
-    }
-
-    // Ensure at least one time is selected
-    if (updatedTimes.length === 0) {
-      updatedTimes = ["Breakfast"];
     }
 
     setSelectedTimes(updatedTimes);
@@ -66,12 +73,6 @@ const RecipeInfoFields = ({
 
   const handleRemoveTime = (timeToRemove) => {
     const updatedTimes = selectedTimes.filter((time) => time !== timeToRemove);
-
-    // Ensure at least one time is selected
-    if (updatedTimes.length === 0) {
-      updatedTimes.push("Breakfast");
-    }
-
     setSelectedTimes(updatedTimes);
     handleInputChange({
       target: { name: "forTime", value: updatedTimes.join(", ") },
@@ -108,7 +109,7 @@ const RecipeInfoFields = ({
           id="recipeType"
           type="text"
           name="recipeType"
-          placeholder="Type here"
+          placeholder="Vegetarian or Non‑Vegetarian"
           value={formData.recipeType}
           onChange={handleInputChange}
           className="w-full px-3 py-2 bg-gray-100 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"

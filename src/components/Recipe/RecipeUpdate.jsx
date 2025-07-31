@@ -21,7 +21,7 @@ const RecipeUpdate = () => {
   const [formData, setFormData] = useState({
     recipeName: "",
     recipeType: "",
-    forTime: "Breakfast",
+    forTime: "",
     tag: "",
     calories: "",
     carbs: "",
@@ -43,7 +43,7 @@ const RecipeUpdate = () => {
       setFormData({
         recipeName: data.recipe_name || "",
         recipeType: data.recipe_type || "",
-        forTime: data.for_time || "Breakfast",
+        forTime: data.for_time || "",
         tag: data.tag || "",
         calories: data.calories || "",
         carbs: data.carbs || "",
@@ -119,11 +119,18 @@ const RecipeUpdate = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Ensure forTime is never empty for backend validation
+    const forTimeValue =
+      formData.forTime && formData.forTime.trim() !== ""
+        ? formData.forTime
+        : "Not specified";
+
     try {
       const form = new FormData();
       form.append("recipe_name", formData.recipeName);
       form.append("recipe_type", formData.recipeType);
-      form.append("for_time", formData.forTime);
+      form.append("for_time", forTimeValue);
       form.append("tag", tags.map((t) => t.text).join(","));
       form.append("calories", formData.calories);
       form.append("carbs", formData.carbs);

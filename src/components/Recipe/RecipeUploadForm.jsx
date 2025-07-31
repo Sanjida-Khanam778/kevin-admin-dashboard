@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import toast from "react-hot-toast";
 import { useCreateRecipeMutation } from "../../Api/authApi";
@@ -12,10 +12,11 @@ import IngredientsInput from "./IngredientsInput";
 import InstructionsInput from "./InstructionsInput";
 
 const RecipeUploadForm = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     recipeName: "",
     recipeType: "",
-    forTime: "Breakfast",
+    forTime: "",
     tag: "",
     calories: "",
     carbs: "",
@@ -89,19 +90,17 @@ const RecipeUploadForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Ensure forTime is never empty
-    if (!formData.forTime || formData.forTime.trim() === "") {
-      setFormData((prev) => ({
-        ...prev,
-        forTime: "Breakfast",
-      }));
-    }
+    // Ensure forTime is never empty for backend validation
+    const forTimeValue =
+      formData.forTime && formData.forTime.trim() !== ""
+        ? formData.forTime
+        : "Not specified";
 
     try {
       const form = new FormData();
       form.append("recipe_name", formData.recipeName);
       form.append("recipe_type", formData.recipeType);
-      form.append("for_time", formData.forTime || "Breakfast");
+      form.append("for_time", forTimeValue);
       form.append("tag", tags.map((t) => t.text).join(","));
       form.append("calories", formData.calories);
       form.append("carbs", formData.carbs);
@@ -115,16 +114,11 @@ const RecipeUploadForm = () => {
       if (imageFile) {
         form.append("image", imageFile);
       }
-      // Log FormData content
-      for (let pair of form.entries()) {
-        console.log(pair[0] + ":", pair[1]);
-      }
+
       await createRecipe(form).unwrap();
       toast.success("Recipe uploaded successfully!");
-    } catch (err) {
-      toast.error("Failed to upload recipe");
-    } finally {
-      // Reset all form fields
+
+      // Reset form only on success
       setFormData({
         recipeName: "",
         recipeType: "",
@@ -144,7 +138,13 @@ const RecipeUploadForm = () => {
       setTags([]);
       setImageFile(null);
       setImagePreview(null);
-      // setResetFileUpload(true);
+
+      navigate("/recipe");
+    } catch (err) {
+      console.error("Recipe upload error:", err);
+      const errorMessage =
+        err?.data?.message || err?.error || "Failed to upload recipe";
+      toast.error(errorMessage);
     }
   };
 
