@@ -1,19 +1,15 @@
 import { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
-import { GrTextAlignCenter } from "react-icons/gr";
-import { MdFormatAlignLeft, MdFormatAlignRight } from "react-icons/md";
 import {
   useGetPrivacyPolicyQuery,
   useUpdatePrivacyPolicyMutation,
   useGetTermsQuery,
-  useCreateTermsMutation,
   useUpdateTermsMutation,
 } from "../../Api/authApi";
+import JoditEditor from "jodit-react";
 
-export default function TextEditor() {
+export default function Settings() {
   const [activeTab, setActiveTab] = useState("terms");
-  const [termsId, setTermsId] = useState(null);
-  const [privacyId, setPrivacyId] = useState(null);
   const {
     data: privacyData,
     isLoading: isPrivacyLoading,
@@ -26,120 +22,75 @@ export default function TextEditor() {
   } = useGetTermsQuery();
   const [updatePrivacyPolicy, { isLoading: isUpdatingPrivacy }] =
     useUpdatePrivacyPolicyMutation();
-  const [createTerms, { isLoading: isCreatingTerms }] =
-    useCreateTermsMutation();
   const [updateTerms, { isLoading: isUpdatingTerms }] =
     useUpdateTermsMutation();
-  const refetchTimeout = useRef();
 
-  // Set privacyId from API
+  const [content, setContent] = useState({
+    privacy: "",
+    terms: "",
+  });
+
+  const editor = useRef(null);
   useEffect(() => {
-    if (privacyData && privacyData.results && privacyData.results.length > 0) {
-      setPrivacyId(privacyData.results[0].id);
-    }
-  }, [privacyData]);
-
-  // Set termsId from API
-  useEffect(() => {
-    if (termsData && termsData.results && termsData.results.length > 0) {
-      setTermsId(termsData.results[0].id);
-    }
-  }, [termsData]);
-
-  // Always sync the editor DOM with API data when tab is active
-  useEffect(() => {
-    const contentEditable = document.getElementById("editor-content");
-    if (
-      activeTab === "privacy" &&
-      privacyData &&
-      privacyData.results &&
-      privacyData.results.length > 0
-    ) {
-      const apiValue = privacyData.results[0].text || "";
-      if (contentEditable && apiValue !== contentEditable.innerHTML) {
-        contentEditable.innerHTML = apiValue;
-      }
-    } else if (
-      activeTab === "terms" &&
-      termsData &&
-      termsData.results &&
-      termsData.results.length > 0
-    ) {
-      const apiValue = termsData.results[0].text || "";
-      if (contentEditable && apiValue !== contentEditable.innerHTML) {
-        contentEditable.innerHTML = apiValue;
-      }
-    }
-  }, [privacyData, termsData, activeTab]);
-
-  const getCurrentContent = () => {
-    if (
-      activeTab === "privacy" &&
-      privacyData &&
-      privacyData.results &&
-      privacyData.results.length > 0
-    ) {
-      return privacyData.results[0].text || "";
-    }
-    if (
-      activeTab === "terms" &&
-      termsData &&
-      termsData.results &&
-      termsData.results.length > 0
-    ) {
-      return termsData.results[0].text || "";
-    }
-    return "";
+    setContent({
+      privacy: privacyData?.text,
+      terms: termsData?.text,
+    });
+  }, [privacyData, termsData]);
+  const config = {
+    toolbar: {
+      items: [
+        "bold",
+        "italic",
+        "underline",
+        "align",
+        "left",
+        "center",
+        "right",
+        "justify",
+        "font-size",
+        "font-family",
+      ],
+    },
   };
 
   useEffect(() => {
-    const contentEditable = document.getElementById("editor-content");
-    if (contentEditable) {
-      contentEditable.innerHTML = getCurrentContent();
+    if (editor.current && editor.current.editor) {
+      editor.current.editor.focus();
     }
-  }, [activeTab, privacyData, termsData]);
+  }, [content]);
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
   };
 
-  const formatText = (command, value = null) => {
-    document.execCommand(command, false, value);
+  const handleContentChange = (newContent) => {
+    setContent({
+      ...content,
+      [activeTab]: newContent,
+    });
   };
 
-  const saveChanges = async () => {
-    const contentEditable = document.getElementById("editor-content");
-    let content = contentEditable ? contentEditable.innerHTML : "";
-    try {
-      if (activeTab === "privacy" && privacyId) {
+  const updateContent = async (tab, content) => {
+    // Send the updated content to the server or perform any other actions
+    if (tab === "privacy") {
+      try {
         await updatePrivacyPolicy({
-          id: privacyId,
+          id: null,
           data: { text: content },
         }).unwrap();
         toast.success("Privacy policy updated successfully!");
-        if (refetchTimeout.current) clearTimeout(refetchTimeout.current);
-        refetchTimeout.current = setTimeout(() => {
-          refetchPrivacy();
-        }, 1000);
-      } else if (activeTab === "terms") {
-        if (termsId) {
-          await updateTerms({ id: termsId, data: { text: content } }).unwrap();
-          toast.success("Terms and conditions updated successfully!");
-          if (refetchTimeout.current) clearTimeout(refetchTimeout.current);
-          refetchTimeout.current = setTimeout(() => {
-            refetchTerms();
-          }, 1000);
-        } else {
-          await createTerms({ text: content }).unwrap();
-          toast.success("Terms and conditions created successfully!");
-          if (refetchTimeout.current) clearTimeout(refetchTimeout.current);
-          refetchTimeout.current = setTimeout(() => {
-            refetchTerms();
-          }, 1000);
-        }
+      } catch (error) {
+        toast.error("Failed to save changes.");
       }
-    } catch (error) {
-      toast.error("Failed to save changes.");
+    }
+    if (tab === "terms") {
+      try {
+        await updateTerms({ id: null, data: { text: content } }).unwrap();
+        toast.success("Terms and conditions updated successfully!");
+      } catch (error) {
+        toast.error("Failed to save changes.");
+      }
     }
   };
 
@@ -156,7 +107,7 @@ export default function TextEditor() {
             }`}
             onClick={() => handleTabChange("terms")}
           >
-            Terms and condition
+            Terms and Conditions
           </button>
           <button
             className={`px-4 py-2 font-medium ${
@@ -166,111 +117,23 @@ export default function TextEditor() {
             }`}
             onClick={() => handleTabChange("privacy")}
           >
-            Privacy policy
+            Privacy Policy
           </button>
         </div>
-
-        <div className="flex items-center justify-start mt-4 rounded">
-          {/* Font size */}
-          <select
-            defaultValue="3"
-            className="px-1 py-0.5 text-sm border border-borderGray rounded mr-1"
-            onChange={(e) => formatText("fontSize", e.target.value)}
-          >
-            <option value="1">10</option>
-            <option value="2">11</option>
-            <option value="3">12</option>
-            <option value="4">14</option>
-            <option value="5">16</option>
-            <option value="6">17</option>
-            <option value="7">18</option>
-          </select>
-
-          <div className="border border-borderGray rounded">
-            {/* Bold */}
-            <button
-              className="px-2 py-0.5  text-sm font-bold border-r border-borderGray"
-              onClick={() => formatText("bold")}
-            >
-              B
-            </button>
-
-            {/* Italic */}
-            <button
-              className="px-2 py-0.5  italic text-sm border-r border-borderGray"
-              onClick={() => formatText("italic")}
-            >
-              I
-            </button>
-
-            {/* Underline */}
-            <button
-              className="px-2 py-0.5  underline text-sm"
-              onClick={() => formatText("underline")}
-            >
-              U
-            </button>
-          </div>
-
-          {/* Text align group */}
-          <div className="flex space-x-1 border border-borderGray rounded ml-1">
-            <button
-              className="px-2 py-1.5  text-sm border-r border-borderGray"
-              onClick={() => formatText("justifyLeft")}
-            >
-              <span className="w-4">
-                <MdFormatAlignLeft />
-              </span>
-            </button>
-
-            <button
-              className="px-2 py-1  rounded text-sm border-r border-borderGray"
-              onClick={() => formatText("justifyCenter")}
-            >
-              <span className="w-4">
-                <GrTextAlignCenter />
-              </span>
-            </button>
-
-            <button
-              className="px-2 py-1 text-sm "
-              onClick={() => formatText("justifyRight")}
-            >
-              <span className="w-4">
-                <MdFormatAlignRight />
-              </span>
-            </button>
-          </div>
+        <div className="mt-6 p-4 border rounded-lg">
+          <JoditEditor
+            ref={editor}
+            value={content[activeTab]}
+            onBlur={handleContentChange}
+            config={config} // Apply the custom config
+          />
         </div>
-
-        {/* Editable content area */}
-        <div
-          id="editor-content"
-          className="min-h-96 outline-none bg-white rounded-lg my-8"
-          contentEditable="true"
-          dangerouslySetInnerHTML={{ __html: getCurrentContent() }}
-        />
-
-        {/* Save button */}
-        <div className="bg-gray-50">
+        <div className="mt-6">
           <button
-            className="w-full bg-primary mb-6 text-white font-medium py-2 px-4 rounded"
-            onClick={saveChanges}
-            disabled={
-              isPrivacyLoading ||
-              isUpdatingPrivacy ||
-              isTermsLoading ||
-              isCreatingTerms ||
-              isUpdatingTerms
-            }
+            className="px-10 py-2 bg-black text-white font-medium rounded-2xl"
+            onClick={() => updateContent(activeTab, content[activeTab])}
           >
-            {isPrivacyLoading ||
-            isUpdatingPrivacy ||
-            isTermsLoading ||
-            isCreatingTerms ||
-            isUpdatingTerms
-              ? "Saving..."
-              : "Save Changes"}
+            Update
           </button>
         </div>
       </div>

@@ -103,8 +103,8 @@ export const authApi = api.injectEndpoints({
 
     updatePrivacyPolicy: builder.mutation({
       query: ({ id, data }) => ({
-        url: `/adminapi/privacy/${id}/`,
-        method: "PUT",
+        url: `/adminapi/privacy/`,
+        method: "POST",
         body: data,
       }),
       invalidatesTags: ["privacy"],
@@ -124,8 +124,8 @@ export const authApi = api.injectEndpoints({
     }),
     updateTerms: builder.mutation({
       query: ({ id, data }) => ({
-        url: `/adminapi/terms/${id}/`,
-        method: "PUT",
+        url: `/adminapi/terms/`,
+        method: "POST",
         body: data,
       }),
       invalidatesTags: ["terms"],
