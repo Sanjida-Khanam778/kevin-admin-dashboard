@@ -56,7 +56,7 @@ export default function Workout() {
             {/* search */}
             <input
               type="text"
-              placeholder="Search by name..."
+              placeholder="Search by name..." 
               className="p-2 border rounded-md bg-white"
               value={query}
               onChange={(e) => {
