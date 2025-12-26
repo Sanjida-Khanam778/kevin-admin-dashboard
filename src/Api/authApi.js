@@ -79,10 +79,10 @@ export const authApi = api.injectEndpoints({
     }),
 
     updateWorkout: builder.mutation({
-      query: ({ id, data }) => ({
-        url: `/adminapi/workout/${id}/`,
+      query: ({ id, form }) => ({
+        url: `adminapi/workout/${id}`,
         method: "PATCH",
-        body: data,
+        body: form,
       }),
       invalidatesTags: ["users"],
     }),

@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import toast from "react-hot-toast";
@@ -7,11 +7,12 @@ import {
   useGetWorkoutQuery,
   useUpdateWorkoutMutation,
 } from "../../Api/authApi";
-import { use } from "react";
-import { useEffect } from "react";
 
 const WorkoutUpdate = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
+
+  // States for the form and files
   const [formData, setFormData] = useState({
     code: "",
     workout_name: "",
@@ -21,16 +22,33 @@ const WorkoutUpdate = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const [videoFile, setVideoFile] = useState(null);
   const [videoName, setVideoName] = useState("");
+
+  // References for file inputs
   const imageInputRef = useRef(null);
   const videoInputRef = useRef(null);
-  const { id } = useParams();
 
+  // Fetch workout data based on ID
   const { data: workout } = useGetWorkoutQuery(id, { skip: !id });
 
+  // Update form data once the workout data is fetched
+  useEffect(() => {
+    if (workout) {
+      setFormData({
+        code: workout.code || "",
+        workout_name: workout.workout_name || "",
+        exercise_type: workout.exercise_type || "cardio",
+      });
+      setImagePreview(workout.image || null);
+      setVideoName(workout.video || "");
+    }
+  }, [workout]);
+
+  // Handlers for file upload
   const handleDragOver = (e) => e.preventDefault();
+
   const handleImageDrop = (e) => {
     e.preventDefault();
-    const file = e.dataTransfer?.files && e.dataTransfer.files[0];
+    const file = e.dataTransfer?.files[0];
     if (file) {
       setImageFile(file);
       setImagePreview(URL.createObjectURL(file));
@@ -39,7 +57,7 @@ const WorkoutUpdate = () => {
 
   const handleVideoDrop = (e) => {
     e.preventDefault();
-    const file = e.dataTransfer?.files && e.dataTransfer.files[0];
+    const file = e.dataTransfer?.files[0];
     if (file) {
       setVideoFile(file);
       setVideoName(file.name);
@@ -58,13 +76,16 @@ const WorkoutUpdate = () => {
     if (videoInputRef.current) videoInputRef.current.value = null;
   };
 
+  // Mutation to update workout data
   const [updateWorkout, { isLoading }] = useUpdateWorkoutMutation();
 
+  // Handle form field changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Handle file changes
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -81,6 +102,7 @@ const WorkoutUpdate = () => {
     }
   };
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -91,8 +113,16 @@ const WorkoutUpdate = () => {
       if (imageFile) form.append("image", imageFile);
       if (videoFile) form.append("video", videoFile);
 
+      console.log({
+        code: formData.code,
+        exercise_type: formData.exercise_type,
+        workout_name: formData.workout_name,
+        image: imageFile,
+        video: videoFile,
+      });
+
       await updateWorkout({ form, id }).unwrap();
-      toast.success("Workout uploaded successfully!");
+      toast.success("Workout updated successfully!");
       navigate("/workout");
     } catch (err) {
       const msg =
@@ -100,18 +130,6 @@ const WorkoutUpdate = () => {
       toast.error(msg);
     }
   };
-
-  useEffect(() => {
-    if (workout) {
-      setFormData({
-        code: workout.code,
-        exercise_type: workout.exercise_type,
-        workout_name: workout.workout_name,
-      });
-      setImagePreview(workout.image);
-      setVideoName(workout.video);
-    }
-  }, [workout]);
 
   return (
     <div className="mx-auto p-6 bg-white h-[90vh] overflow-y-scroll w-full">
@@ -127,6 +145,7 @@ const WorkoutUpdate = () => {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 gap-6">
+            {/* Workout Code */}
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 Code
@@ -141,6 +160,7 @@ const WorkoutUpdate = () => {
               />
             </div>
 
+            {/* Workout Name */}
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 Workout Name
@@ -155,6 +175,7 @@ const WorkoutUpdate = () => {
               />
             </div>
 
+            {/* Exercise Type */}
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 Type of Exercise
@@ -172,6 +193,7 @@ const WorkoutUpdate = () => {
               </select>
             </div>
 
+            {/* Image Upload */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Upload Workout Image
@@ -223,6 +245,7 @@ const WorkoutUpdate = () => {
               </div>
             </div>
 
+            {/* Video Upload */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Upload Workout Video
@@ -288,6 +311,7 @@ const WorkoutUpdate = () => {
             </div>
           </div>
 
+          {/* Submit Button */}
           <div className="flex justify-center pt-6">
             <button
               type="submit"
@@ -296,11 +320,10 @@ const WorkoutUpdate = () => {
             >
               {isLoading ? (
                 <>
-                  <CgSpinner className="inline animate-spin mr-2" />{" "}
-                  Uploading...
+                  <CgSpinner className="inline animate-spin mr-2" /> Updating...
                 </>
               ) : (
-                "Upload"
+                "Update Workout"
               )}
             </button>
           </div>
