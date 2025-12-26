@@ -47,18 +47,30 @@ export default function EditPackage() {
       toast.error("Please fill all required fields correctly!");
       return;
     }
+
+    const data = {
+      name: name.trim(),
+      description: description.trim(),
+      recurring,
+      amount: parseFloat(amount),
+      billing_interval: billingInterval,
+      interval_count: parseInt(intervalCount),
+      status: status,
+    };
     try {
+      const fromData = new FormData();
+
+      fromData.append("name", data.name);
+      fromData.append("description", data.description);
+      fromData.append("recurring", data.recurring);
+      fromData.append("amount", data.amount);
+      fromData.append("billing_interval", data.billing_interval);
+      fromData.append("interval_count", data.interval_count);
+      fromData.append("status", data.status);
+
       await updatePackage({
         id,
-        data: {
-          name: name.trim(),
-          description: description.trim(),
-          recurring,
-          amount: parseFloat(amount),
-          billing_interval: billingInterval,
-          interval_count: parseInt(intervalCount),
-          status: status,
-        },
+        data: fromData,
       }).unwrap();
       toast.success("Package updated successfully!");
       setIntervalCount(1);

@@ -10,11 +10,8 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 import { useAllRecipeQuery, useDeleteRecipeMutation } from "../../Api/authApi";
 
 export default function Recipe() {
-  // Remove initialRecipes and recipesState state
-  // const [recipesState, setRecipesState] = useState(initialRecipes);
   const [query, setQuery] = useState("");
-  const [sortBy, setSortBy] = useState("");
-  const [deleteRecipe, { isLoading: isDeleting }] = useDeleteRecipeMutation();
+  const [deleteRecipe] = useDeleteRecipeMutation();
   const [openDltModal, setOpenDltModal] = useState(false);
   const [selectedRecipeId, setSelectedRecipeId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -27,7 +24,6 @@ export default function Recipe() {
   });
   const recipes = data?.results || [];
   const totalItems = data?.count || 0;
-  console.log(recipes);
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
@@ -109,10 +105,6 @@ export default function Recipe() {
                 <th className="px-6 py-3 text-left font-bold text-neutral tracking-wider">
                   Recipe Type
                 </th>
-
-                <th className="px-6 py-3 text-left font-bold text-neutral tracking-wider">
-                  For Time
-                </th>
                 <th className="px-6 py-3 text-right font-bold text-neutral tracking-wider">
                   Action
                 </th>
@@ -135,18 +127,13 @@ export default function Recipe() {
                           alt=""
                         />
                         <div className="text-sm font-medium text-gray-900">
-                          {recipe?.recipe_name}
+                          {recipe?.food_name}
                         </div>
                       </div>
                     </td>
 
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className={`text-sm`}>{recipe?.recipe_type}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-subgray">
-                        {recipe?.for_time}
-                      </div>
+                      <div className={`text-sm`}>{recipe?.category}</div>
                     </td>
 
                     <td className="px-6 py-4 whitespace-nowrap space-x-5 text-right">

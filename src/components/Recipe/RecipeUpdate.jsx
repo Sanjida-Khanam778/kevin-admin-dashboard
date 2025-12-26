@@ -1,16 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import { WithContext as ReactTags, SEPARATORS } from "react-tag-input";
 import toast from "react-hot-toast";
 import { useGetRecipeQuery, useUpdateRecipeMutation } from "../../Api/authApi";
 import { CgSpinner } from "react-icons/cg";
-import RecipeInfoFields from "./RecipeInfoFields";
-import ImageUpload from "./ImageUpload";
-import NutritionFacts from "./NutritionFacts";
-import RecipeFacts from "./RecipeFacts";
-import IngredientsInput from "./IngredientsInput";
-import InstructionsInput from "./InstructionsInput";
 
 const RecipeUpdate = () => {
   const { id } = useParams();
@@ -18,53 +11,17 @@ const RecipeUpdate = () => {
   const { data, isLoading: isFetching } = useGetRecipeQuery(id);
   const [updateRecipe, { isLoading }] = useUpdateRecipeMutation();
 
-  const [formData, setFormData] = useState({
-    recipeName: "",
-    recipeType: "",
-    forTime: "",
-    tag: "",
-    calories: "",
-    carbs: "",
-    protein: "",
-    fat: "",
-    makingTime: "",
-    category: "",
-    time: "",
-    ingredients: "",
-    instructions: "",
-  });
-  const [tags, setTags] = useState([]);
+  const [formData, setFormData] = useState({ recipeName: "", category: "" });
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const fileInputRef = useRef(null);
 
-  // Fill form when data loads
   useEffect(() => {
     if (data) {
       setFormData({
-        recipeName: data.recipe_name || "",
-        recipeType: data.recipe_type || "",
-        forTime: data.for_time || "",
-        tag: data.tag || "",
-        calories: data.calories || "",
-        carbs: data.carbs || "",
-        protein: data.protein || "",
-        fat: data.fat || "",
-        makingTime: data.making_time || "",
+        recipeName: data.food_name || data.recipe_name || "",
         category: data.category || "",
-        time: data.time || "",
-        ingredients: data.ingredients || "",
-        instructions: data.instructions || "",
       });
-      // Parse tags if present
-      if (data.tag) {
-        setTags(
-          data.tag
-            .split(",")
-            .map((t, i) => ({ id: t.trim() + i, text: t.trim() }))
-        );
-      } else {
-        setTags([]);
-      }
       setImagePreview(data.image || null);
       setImageFile(null);
     }
@@ -72,93 +29,52 @@ const RecipeUpdate = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleDelete = (index) => {
-    setTags(tags.filter((_, i) => i !== index));
-  };
-
-  const onTagUpdate = (index, newTag) => {
-    const updatedTags = [...tags];
-    updatedTags.splice(index, 1, newTag);
-    setTags(updatedTags);
-  };
-
-  const handleAddition = (tag) => {
-    setTags((prevTags) => [...prevTags, tag]);
-  };
-
-  const handleTagClick = (index) => {
-    // Optional: handle tag click
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleFileInputChange = (e) => {
-    const file = e.target.files[0];
+    const file = e.target?.files ? e.target.files[0] : e;
     if (file) {
       setImageFile(file);
       setImagePreview(URL.createObjectURL(file));
     }
   };
 
-  const handleDragOver = (e) => {
-    e.preventDefault();
-  };
-
+  const handleDragOver = (e) => e.preventDefault();
   const handleDrop = (e) => {
     e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    if (file) {
-      setImageFile(file);
-      setImagePreview(URL.createObjectURL(file));
-    }
+    const file = e.dataTransfer?.files && e.dataTransfer.files[0];
+    if (file) handleFileInputChange(file);
+  };
+
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = null;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Ensure forTime is never empty for backend validation
-    const forTimeValue =
-      formData.forTime && formData.forTime.trim() !== ""
-        ? formData.forTime
-        : "Not specified";
-
     try {
       const form = new FormData();
-      form.append("recipe_name", formData.recipeName);
-      form.append("recipe_type", formData.recipeType);
-      form.append("for_time", forTimeValue);
-      form.append("tag", tags.map((t) => t.text).join(","));
-      form.append("calories", formData.calories);
-      form.append("carbs", formData.carbs);
-      form.append("protein", formData.protein);
-      form.append("fat", formData.fat);
-      form.append("making_time", formData.makingTime);
+      form.append("food_name", formData.recipeName);
       form.append("category", formData.category);
-      form.append("time", formData.time);
-      form.append("ingredients", formData.ingredients);
-      form.append("instructions", formData.instructions);
-      if (imageFile) {
-        form.append("image", imageFile);
-      }
+      if (imageFile) form.append("image", imageFile);
+
       await updateRecipe({ id, data: form }).unwrap();
       toast.success("Recipe updated successfully!");
       navigate("/recipe");
     } catch (err) {
-      toast.error("Failed to update recipe");
+      const msg = err?.data?.message || err?.error || "Failed to update recipe";
+      toast.error(msg);
     }
   };
 
-  if (isFetching) {
-    return <div className="p-8 text-center">Loading...</div>;
-  }
+  if (isFetching) return <div className="p-8 text-center">Loading...</div>;
 
   return (
     <div className="mx-auto p-6 bg-white h-[90vh] overflow-y-scroll w-full">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-3xl mx-auto">
         <div className="flex items-center mb-8">
           <Link to={"/recipe"}>
             <ArrowLeft className="w-6 h-6 text-gray-600 mr-4 cursor-pointer" />
@@ -167,46 +83,89 @@ const RecipeUpdate = () => {
             Update Recipe
           </h1>
         </div>
+
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <RecipeInfoFields
-              formData={formData}
-              handleInputChange={handleInputChange}
-              tags={tags}
-              handleDelete={handleDelete}
-              handleAddition={handleAddition}
-              handleTagClick={handleTagClick}
-              onTagUpdate={onTagUpdate}
-            />
-            <ImageUpload
-              imagePreview={imagePreview}
-              handleDragOver={handleDragOver}
-              handleDrop={handleDrop}
-              handleFileInputChange={handleFileInputChange}
-              setImageFile={setImageFile}
-              setImagePreview={setImagePreview}
-            />
+          <div className="grid grid-cols-1 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Recipe Name
+              </label>
+              <input
+                type="text"
+                name="recipeName"
+                value={formData.recipeName}
+                onChange={handleInputChange}
+                className="mt-1 block w-full border border-borderGray rounded px-3 py-2"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Category
+              </label>
+              <input
+                type="text"
+                name="category"
+                value={formData.category}
+                onChange={handleInputChange}
+                className="mt-1 block w-full border border-borderGray rounded px-3 py-2"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Image
+              </label>
+              <div
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+                onClick={() =>
+                  fileInputRef.current && fileInputRef.current.click()
+                }
+                className="mt-1 flex items-center justify-center h-48 w-full border-2 border-dashed border-borderGray rounded cursor-pointer bg-white hover:bg-gray-50 relative"
+              >
+                {!imagePreview ? (
+                  <div className="text-center px-4">
+                    <p className="text-sm text-gray-600">
+                      Drag & drop an image here
+                    </p>
+                    <p className="text-sm text-gray-500">or click to select</p>
+                  </div>
+                ) : (
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="w-full h-full object-cover rounded"
+                  />
+                )}
+
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileInputChange}
+                  className="hidden"
+                />
+
+                {imagePreview && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemoveImage();
+                    }}
+                    className="absolute top-2 right-2 bg-white p-1 rounded-full shadow"
+                    aria-label="Remove image"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <NutritionFacts
-              formData={formData}
-              handleInputChange={handleInputChange}
-            />
-            <RecipeFacts
-              formData={formData}
-              handleInputChange={handleInputChange}
-            />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <IngredientsInput
-              formData={formData}
-              handleInputChange={handleInputChange}
-            />
-            <InstructionsInput
-              formData={formData}
-              handleInputChange={handleInputChange}
-            />
-          </div>
+
           <div className="flex justify-center pt-6">
             <button
               type="submit"

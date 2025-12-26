@@ -13,13 +13,13 @@ export const authApi = api.injectEndpoints({
 
     allRecipe: builder.query({
       query: ({ search = "", page = 1, page_size = 9 } = {}) =>
-        `/adminapi/recipes/?search=${search}&page=${page}&page_size=${page_size}`,
+        `/adminapi/all/meal/?search=${search}&page=${page}&page_size=${page_size}`,
       providesTags: ["users"],
     }),
 
     createRecipe: builder.mutation({
       query: (data) => ({
-        url: "/adminapi/recipes/",
+        url: "/adminapi/meal/",
         method: "POST",
         body: data,
       }),
@@ -27,13 +27,13 @@ export const authApi = api.injectEndpoints({
     }),
 
     getRecipe: builder.query({
-      query: (id) => `/adminapi/recipes/${id}/`,
+      query: (id) => `/adminapi/meal/${id}/`,
       providesTags: ["users"],
     }),
 
     updateRecipe: builder.mutation({
       query: ({ id, data }) => ({
-        url: `/adminapi/recipes/${id}/`,
+        url: `/adminapi/meal/${id}/`,
         method: "PATCH",
         body: data,
       }),
@@ -42,7 +42,7 @@ export const authApi = api.injectEndpoints({
 
     deleteRecipe: builder.mutation({
       query: (id) => ({
-        url: `/adminapi/recipes/${id}/`,
+        url: `/adminapi/meal/delete/${id}/`,
         method: "DELETE",
       }),
       invalidatesTags: ["users"],

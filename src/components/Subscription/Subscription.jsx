@@ -13,7 +13,6 @@ import DeleteConfirmationModal from "../Shared/DeleteConfirmationModal";
 
 export default function Subscription() {
   const [isLoading, setIsLoading] = useState(false);
-  const [editIndex, setEditIndex] = useState(null);
   const [packages, setPackages] = useState([]);
   const navigate = useNavigate();
   const [deletePackage] = useDeletePackageMutation();
@@ -23,57 +22,13 @@ export default function Subscription() {
 
   // Fetch packages from API
   const { data, isLoading: apiLoading, refetch } = useAllPackagesQuery();
-  console.log(packages);
 
   useEffect(() => {
-    if (data && data.results) {
-      setPackages(data.results);
+    if (data) {
+      setPackages(data);
     }
     setIsLoading(apiLoading);
   }, [data, apiLoading]);
-
-  const handleEdit = (index) => {
-    setEditIndex(index);
-  };
-
-  const handleAmountChange = (index, value, id) => {
-    const updatedPackages = packages.map((pkg, i) =>
-      i === index ? { ...pkg, package_amount: value } : pkg
-    );
-    setPackages(updatedPackages);
-    const newAmountData = {
-      id,
-      package_amount: { package_amount: value },
-    };
-    sendPackageAmount(newAmountData)
-      .unwrap()
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((error) => {
-        toast.error("Failed to update status");
-      });
-  };
-
-  const handleStatusChange = (index, newStatus, id) => {
-    const updatedPackages = packages.map((pkg, i) =>
-      i === index ? { ...pkg, package_status: newStatus } : pkg
-    );
-
-    setPackages(updatedPackages);
-    const newStatusData = {
-      id,
-      package_status: { package_status: newStatus },
-    };
-    sendPackageStatus(newStatusData)
-      .unwrap()
-      .then((res) => {
-        toast.success(res.message);
-      })
-      .catch((error) => {
-        toast.error("Failed to update status");
-      });
-  };
 
   const handleDelete = async (id) => {
     setIsDeleting(true);
@@ -193,7 +148,7 @@ export default function Subscription() {
                         </select>
 
                         {/* Custom dropdown arrow */}
-                        {/* {pkg.package_type !== "Free" && (
+                    {/* {pkg.package_type !== "Free" && (
                           <div
                             className={`pointer-events-none absolute inset-y-2 right-2 flex items-center text-gray-700 ${getStatusColor(
                               pkg.package_status

@@ -26,16 +26,27 @@ export default function AddPackage() {
       toast.error("Please fill all required fields correctly!");
       return;
     }
+
+    const data = {
+      name: name.trim(),
+      description: description.trim(),
+      recurring: true,
+      amount: parseFloat(amount),
+      billing_interval: billingInterval,
+      interval_count: parseInt(intervalCount),
+      status: status,
+    };
+
     try {
-      await addPackage({
-        name: name.trim(),
-        description: description.trim(),
-        recurring: true,
-        amount: parseFloat(amount),
-        billing_interval: billingInterval,
-        interval_count: parseInt(intervalCount),
-        status: status,
-      }).unwrap();
+      const formData = new FormData();
+      formData.append("name", data.name);
+      formData.append("description", data.description);
+      formData.append("recurring", data.recurring);
+      formData.append("amount", data.amount);
+      formData.append("billing_interval", data.billing_interval);
+      formData.append("interval_count", data.interval_count);
+      formData.append("status", data.status);
+      await addPackage(formData).unwrap();
       toast.success("Package Added Successfully!");
       setName("");
       setDescription("");
@@ -45,9 +56,7 @@ export default function AddPackage() {
       setIntervalCount(1);
       navigate("/subscription");
     } catch (error) {
-      toast.error(
-        error?.data?.message || "Failed to add package"
-      );
+      toast.error(error?.data?.message || "Failed to add package");
     }
   };
 
