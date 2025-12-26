@@ -56,7 +56,7 @@ export default function Workout() {
             {/* search */}
             <input
               type="text"
-              placeholder="Search by name..." 
+              placeholder="Search by name..."
               className="p-2 border rounded-md bg-white"
               value={query}
               onChange={(e) => {
@@ -120,7 +120,7 @@ export default function Workout() {
                   Workout Type
                 </th>
                 <th className="px-6 py-3 text-left font-bold text-neutral tracking-wider">
-                  For
+                  Code
                 </th>
                 <th className="px-6 py-3 text-right font-bold text-neutral tracking-wider">
                   Action
@@ -154,11 +154,11 @@ export default function Workout() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm">{workout?.workout_type}</div>
+                      <div className="text-sm">{workout?.exercise_type}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-subgray">
-                        {workout?.for_body_part}
+                        {workout?.code}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap space-x-5 text-right">
