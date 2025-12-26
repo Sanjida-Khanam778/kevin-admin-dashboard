@@ -1,7 +1,6 @@
 import avatar from "../../assets/images/Avatar.png";
 
 export default function UserInfo({ userDetails }) {
-  console.log(userDetails, "userDetails");
   if (!userDetails) return null;
 
   const formatDate = (dateString) => {
