@@ -11,6 +11,14 @@ export const authApi = api.injectEndpoints({
       }),
     }),
 
+    refetchAccess: builder.mutation({
+      query: (data) => ({
+        url: "token/refresh/",
+        method: "POST",
+        body: data,
+      }),
+    }),
+
     allRecipe: builder.query({
       query: ({ search = "", page = 1, page_size = 9 } = {}) =>
         `/adminapi/all/meal/?search=${search}&page=${page}&page_size=${page_size}`,
@@ -169,6 +177,7 @@ export const authApi = api.injectEndpoints({
 
 export const {
   useLoginMutation,
+  useRefetchAccessMutation,
   useAllRecipeQuery,
   useCreateRecipeMutation,
   useGetRecipeQuery,

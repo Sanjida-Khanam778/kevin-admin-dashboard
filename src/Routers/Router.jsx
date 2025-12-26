@@ -30,15 +30,27 @@ export const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <Overview />,
+        element: (
+          <PrivateRoute>
+            <Overview />
+          </PrivateRoute>
+        ),
       },
       {
         path: "/clients",
-        element: <Clients />,
+        element: (
+          <PrivateRoute>
+            <Clients />
+          </PrivateRoute>
+        ),
       },
       {
         path: "/clients/:id",
-        element: <UserProfileDashboard />,
+        element: (
+          <PrivateRoute>
+            <UserProfileDashboard />
+          </PrivateRoute>
+        ),
       },
       {
         path: "/recipe",
@@ -46,47 +58,91 @@ export const router = createBrowserRouter([
       },
       {
         path: "/recipe/upload",
-        element: <RecipeUploadForm />,
+        element: (
+          <PrivateRoute>
+            <RecipeUploadForm />
+          </PrivateRoute>
+        ),
       },
       {
         path: "/recipe/:id",
-        element: <RecipeDetails />,
+        element: (
+          <PrivateRoute>
+            <RecipeDetails />
+          </PrivateRoute>
+        ),
       },
       {
         path: "/recipe/update/:id",
-        element: <RecipeUpdate />,
+        element: (
+          <PrivateRoute>
+            <RecipeUpdate />
+          </PrivateRoute>
+        ),
       },
       {
         path: "/workout",
-        element: <Workout />,
+        element: (
+          <PrivateRoute>
+            <Workout />
+          </PrivateRoute>
+        ),
       },
       {
         path: "/workout/upload",
-        element: <WorkoutUploadForm />,
+        element: (
+          <PrivateRoute>
+            <WorkoutUploadForm />
+          </PrivateRoute>
+        ),
       },
       {
         path: "/workout/:id",
-        element: <WorkoutDetails />,
+        element: (
+          <PrivateRoute>
+            <WorkoutDetails />
+          </PrivateRoute>
+        ),
       },
       {
         path: "/workout/update/:id",
-        element: <WorkoutUpdate />,
+        element: (
+          <PrivateRoute>
+            <WorkoutUpdate />
+          </PrivateRoute>
+        ),
       },
       {
         path: "/subscription",
-        element: <Subscription />,
+        element: (
+          <PrivateRoute>
+            <Subscription />
+          </PrivateRoute>
+        ),
       },
       {
         path: "/subscription/add",
-        element: <AddPackage />,
+        element: (
+          <PrivateRoute>
+            <AddPackage />
+          </PrivateRoute>
+        ),
       },
       {
         path: "/subscription/edit/:id",
-        element: <EditPackage />,
+        element: (
+          <PrivateRoute>
+            <EditPackage />
+          </PrivateRoute>
+        ),
       },
       {
         path: "/settings",
-        element: <Settings />,
+        element: (
+          <PrivateRoute>
+            <Settings />
+          </PrivateRoute>
+        ),
       },
     ],
   },
