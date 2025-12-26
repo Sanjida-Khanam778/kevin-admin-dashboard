@@ -10,21 +10,11 @@ export default function WorkoutDetails() {
   if (isLoading) return <div className="p-8 text-center">Loading...</div>;
   if (!workout) return <div className="p-8 text-center">Not found</div>;
 
-  // Parse tags and benefits
-  const tags = workout.tag ? workout.tag.split(",").map((t) => t.trim()) : [];
-  const benefits = workout.benefits
-    ? workout.benefits.split(",").map((b) => b.trim())
-    : [];
-  // Helper to convert HH:MM:SS to 'X hours Y minutes Z sec'
-  function formatTime(hms) {
-    if (!hms) return "";
-    const [h, m, s] = hms.split(":").map(Number);
-    let str = "";
-    if (h) str += `${h} hour${h > 1 ? "s" : ""} `;
-    if (m) str += `${m} minute${m > 1 ? "s" : ""} `;
-    if (s) str += `${s} sec`;
-    return str.trim();
-  }
+  // Only use fields returned by API; guard absent fields
+  const code = workout?.code ?? "-";
+  const exerciseType = workout?.exercise_type ?? "-";
+  const imageSrc = workout?.image || avatar;
+  const videoSrc = workout?.video || null;
 
   return (
     <div className="mx-auto p-6 bg-white w-full h-[90vh] overflow-y-scroll">
@@ -37,103 +27,70 @@ export default function WorkoutDetails() {
             {workout.workout_name}
           </h1>
         </div>
-        {/* Main content area */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/* Left side - Image */}
-          <div className="relative bg-sidebar p-6 rounded-lg">
-            <img
-              src={workout.image || avatar}
-              alt={workout.workout_name}
-              className="w-full h-full object-cover rounded-lg"
-            />
-          </div>
-
-          {/* Right side - Nutrition and Workout Facts */}
-          <div className="space-y-6">
-            {/* Workout Facts */}
-            <div className="bg-gray-50 p-6 rounded-lg">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                Workout type
-              </h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-gray-600">Type</p>
-                  <p className="text-2xl font-bold text-gray-800">
-                    {workout.workout_type}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">For body part</p>
-                  <p className="text-2xl font-bold text-gray-800">
-                    {workout.for_body_part}
-                  </p>
-                </div>
-              </div>
+        {/* Main content area: left column has image + video, right column shows exercise meta */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+          {/* Left - media column (span 2 on large screens) */}
+          <div className="lg:col-span-2 space-y-6">
+            <div className="bg-white rounded-lg p-4 shadow">
+              <img
+                src={imageSrc}
+                alt={workout.workout_name || "Workout image"}
+                className="w-full h-64 md:h-80 object-cover rounded-lg"
+              />
             </div>
 
-            {/* Workout Details */}
-            <div className="bg-gray-50 p-6 rounded-lg">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                Workout fact
-              </h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-gray-600">Time needed</p>
-                  <p className="text-2xl font-bold text-gray-800">
-                    {formatTime(workout.time_needed)}
-
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Calories burn</p>
-                  <p className="text-lg font-semibold text-gray-800">
-                    {workout.calories_burn}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-600">Equipment needed</p>
-                  <p className="text-lg font-semibold text-gray-800">
-                    {workout.equipment_needed}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Tags */}
-        <div className="mb-8">
-          <h3 className="text-lg font-semibold text-gray-800 mb-3">Tags</h3>
-          <div className="flex flex-wrap gap-2">
-            {tags.length > 0 ? (
-              tags.map((tag, i) => (
-                <span
-                  key={i}
-                  className="px-3 py-1 bg-gray-800 text-white text-sm rounded-full"
+            <div className="bg-white rounded-lg p-4 shadow">
+              {videoSrc ? (
+                <a
+                  href={videoSrc}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block relative"
                 >
-                  {tag}
-                </span>
-              ))
-            ) : (
-              <span className="text-gray-500">No tags</span>
-            )}
-          </div>
-        </div>
-
-        {/* Benefits */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="bg-gray-50 p-6 rounded-lg">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">
-              Benefits
-            </h3>
-            <ul className="space-y-2 text-gray-700">
-              {benefits.length > 0 ? (
-                benefits.map((b, i) => <li key={i}>• {b}</li>)
+                  <div className="w-full h-56 md:h-72 bg-gray-200 rounded-lg overflow-hidden flex items-center justify-center">
+                    <img
+                      src={imageSrc}
+                      alt="video thumbnail"
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                    <div className="z-10 w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-6 w-6 text-gray-800"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </div>
+                  </div>
+                </a>
               ) : (
-                <li>No benefits listed.</li>
+                <div className="w-full h-56 md:h-72 bg-gray-100 rounded-lg flex items-center justify-center text-gray-500">
+                  No video available
+                </div>
               )}
-            </ul>
+            </div>
           </div>
+
+          {/* Right - meta column */}
+          <aside className="bg-white rounded-lg p-6 shadow">
+            <h3 className="text-sm font-semibold text-gray-600 mb-4">
+              Exercise
+            </h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-sm text-gray-500">Code</div>
+              <div className="font-semibold text-gray-800">{code}</div>
+
+              <div className="text-sm text-gray-500">Name</div>
+              <div className="font-semibold text-gray-800">
+                {workout.workout_name ?? "-"}
+              </div>
+
+              <div className="text-sm text-gray-500">Type</div>
+              <div className="font-semibold text-gray-800">{exerciseType}</div>
+            </div>
+          </aside>
         </div>
       </div>
     </div>

@@ -58,20 +58,20 @@ export const authApi = api.injectEndpoints({
 
     allWorkout: builder.query({
       query: ({ search = "", page = 1, page_size = 9, sort = "" } = {}) => {
-        let url = `/adminapi/workouts/?search=${search}&page=${page}&page_size=${page_size}`;
+        let url = `/adminapi/all/workout/?search=${search}&page=${page}&page_size=${page_size}`;
         return url;
       },
       providesTags: ["users"],
     }),
 
     getWorkout: builder.query({
-      query: (id) => `/adminapi/workouts/${id}/`,
+      query: (id) => `/adminapi/workout/${id}/`,
       providesTags: ["users"],
     }),
 
     createWorkout: builder.mutation({
       query: (data) => ({
-        url: "/adminapi/workouts/",
+        url: "/adminapi/workout/",
         method: "POST",
         body: data,
       }),
@@ -80,7 +80,7 @@ export const authApi = api.injectEndpoints({
 
     updateWorkout: builder.mutation({
       query: ({ id, data }) => ({
-        url: `/adminapi/workouts/${id}/`,
+        url: `/adminapi/workout/${id}/`,
         method: "PATCH",
         body: data,
       }),
@@ -89,7 +89,7 @@ export const authApi = api.injectEndpoints({
 
     deleteWorkout: builder.mutation({
       query: (id) => ({
-        url: `/adminapi/workouts/${id}/`,
+        url: `/adminapi/workout/delete/${id}/`,
         method: "DELETE",
       }),
       invalidatesTags: ["users"],
